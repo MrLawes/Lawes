@@ -7,6 +7,7 @@ from lawes.db import models
 class Test(models.Model):
 
     name = models.CharField(default='')
+    address = models.CharField(default='')
 
 a = Test()
 a.name = 'name1'
