@@ -32,7 +32,7 @@ class Model(object):
         # true: UPDATE; false: INSERT
         pk_set = pk_val is not None
         if pk_set:
-            self._do_update()# TODO
+            self._do_update(obj=self, fields=self.local_fields)
         else:
             result = self._do_insert(obj=self, fields=self.local_fields)
             setattr(self, self.pk_attname, result)
@@ -50,6 +50,12 @@ class Model(object):
         """ 向 mongodb 插入数据
         """
         return cls.queryset._insert(obj_class=cls, obj=obj, fields=fields)
+
+    @classmethod
+    def _do_update(cls, obj, fields):
+        """ 向 mongodb 更新数据
+        """
+        return cls.queryset._update(obj_class=cls, obj=obj, fields=fields)
 
     @classmethod
     def filter(cls, **query):
@@ -74,3 +80,9 @@ class Model(object):
         elif len(obj) == 0:
             raise 'The len is 0!'
         return obj[0]
+
+    def to_dict(self):
+        result = { field: getattr(self, field) for field in self.local_fields if hasattr(self, field) }
+        if hasattr(self, '_id'):
+            result['_id'] = self._id
+        return result

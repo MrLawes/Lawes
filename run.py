@@ -16,17 +16,24 @@ class Test(models.Model):
     email = models.CharField(default='qq.com')
 
 # a = Test()
-# a.name = 'lawes1'
+# a.name = 'lawes2'
 # a.save()
 
-a = Test.filter(name='name1')
-for i in a:
-    i.name = 'name2'
-    i.save()
+a = Test.get(name='chenhaiou')
+print a.email
+print a.address
+print a.name
+# a.save()
+
+# a.address = 'address1'
+# a.save()
+# for i in a:
+#     i.name = 'name2'
+#     i.save()
 print a
 
-conn = MongoClient(conf_dict['mongo_uri'])
-mongo_db = conn[conf_dict['conn_index']]
-for i in mongo_db.run_test.find():
-    print i
+# conn = MongoClient(conf_dict['mongo_uri'])
+# mongo_db = conn[conf_dict['conn_index']]
+# for i in mongo_db.run_test.find():
+#     print i
 

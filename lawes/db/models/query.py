@@ -19,7 +19,15 @@ class QuerySet(object):
         """
         collection = self.get_collection(obj_class=obj_class)
         insert_dict = { field: getattr(obj, field) for field in fields if hasattr(obj, field) }
-        return collection.insert(insert_dict)
+        return collection.insert(obj.to_dict())
+
+    def _update(self, obj_class, obj, fields):
+        """ 数据库中更新数据，到这里 Model.save() 才算真正完成
+            return _id
+        """
+        collection = self.get_collection(obj_class=obj_class)
+        insert_dict = obj.to_dict()
+        return collection.update({'_id': insert_dict['_id']}, insert_dict, upsert=True)
 
     def _get_collection_name(self, obj_class):
         return obj_class.__module__.split('.')[-1] + '_' + obj_class.__name__.lower()
