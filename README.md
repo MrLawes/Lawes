@@ -21,6 +21,8 @@ a.save()
 a = Test.filter(name='name1')
 # 查找一个记录
 a = Test.get(name='name1')
+a.address = 'address'
+a.save()
 
 conn = MongoClient(conf_dict['mongo_uri'])
 mongo_db = conn[conf_dict['conn_index']]
