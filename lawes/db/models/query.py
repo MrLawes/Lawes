@@ -20,8 +20,8 @@ class QuerySet(object):
         collection = self.get_collection(objs=objs)
         # TODO dict
         insert_dict = {
-            'name': objs.name,
-            'address': objs.address,
+            'name': 'name1',
+            'address': 'address2',
         }
         return collection.insert(insert_dict)
 
@@ -32,7 +32,6 @@ class QuerySet(object):
     def mongo(self):
         if not self._mongo or not self.conn_index:
             raise CONF_RAESE
-
         return self._mongo
 
     def get_collection(self, objs):
