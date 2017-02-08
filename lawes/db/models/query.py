@@ -13,20 +13,16 @@ class QuerySet(object):
         self._mongo = None
         self.conn_index = ''
 
-    def _insert(self, objs, fields):
+    def _insert(self, obj_class, obj, fields):
         """ 数据库中插入数据，到这里 Model.save() 才算真正完成
             return _id
         """
-        collection = self.get_collection(objs=objs)
-        # TODO dict
-        insert_dict = {
-            'name': 'name1',
-            'address': 'address2',
-        }
+        collection = self.get_collection(obj_class=obj_class)
+        insert_dict = { field: getattr(obj, field) for field in fields if hasattr(obj, field) }
         return collection.insert(insert_dict)
 
-    def _get_collection_name(self, objs):
-        return objs.__module__.split('.')[-1] + '_' + objs.__name__.lower()
+    def _get_collection_name(self, obj_class):
+        return obj_class.__module__.split('.')[-1] + '_' + obj_class.__name__.lower()
 
     @property
     def mongo(self):
@@ -34,11 +30,11 @@ class QuerySet(object):
             raise CONF_RAESE
         return self._mongo
 
-    def get_collection(self, objs):
+    def get_collection(self, obj_class):
         db = self.conn_index
         db = db.lower()
         db = self.mongo[db]
-        collection_name = self._get_collection_name(objs=objs)
+        collection_name = self._get_collection_name(obj_class=obj_class)
         collection = getattr(db, collection_name)
         return collection
 

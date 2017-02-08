@@ -1,13 +1,28 @@
 # -*- coding:utf-8 -*-
 
 from lawes.db.models.query import queryset
+from lawes.db.models.fields import Field
 
-class ModelBase(object):
+class ModelBase(type):
 
+    def __new__(cls, name, bases, attrs):
+        """ 将 Field 转换成对于真实的数据
+        """
+        if name == 'Model':
+            return type.__new__(cls, name, bases, attrs)
+        attrs['local_fields'] = []
+        for attr in attrs:
+            if hasattr(attrs[attr], 'contribute_to_class'):
+                attrs['local_fields'].append(attr)
+            if isinstance(attrs[attr], Field):
+                attrs[attr] = attrs[attr].value
+        return type.__new__(cls, name, bases, attrs)
+
+class Model(object):
+
+    __metaclass__ = ModelBase
     pk_attname = '_id'
     queryset = queryset
-
-class Model(ModelBase):
 
     def save(self):
         self.save_base()
@@ -21,9 +36,9 @@ class Model(ModelBase):
         # true: UPDATE; false: INSERT
         pk_set = pk_val is not None
         if pk_set:
-            self._do_update()
+            self._do_update()# TODO
         else:
-            result = self._do_insert(fields=[])
+            result = self._do_insert(obj=self, fields=self.local_fields)
             setattr(self, self.pk_attname, result)
 
     def _get_pk_val(self):
@@ -35,7 +50,7 @@ class Model(ModelBase):
             return getattr(self, self.pk_attname)
 
     @classmethod
-    def _do_insert(cls, fields):
+    def _do_insert(cls, obj, fields):
         """ 向 mongodb 插入数据
         """
-        return cls.queryset._insert(objs=cls, fields=fields)
+        return cls.queryset._insert(obj_class=cls, obj=obj, fields=fields)
