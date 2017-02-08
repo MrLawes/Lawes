@@ -52,4 +52,30 @@ class QuerySet(object):
         self._mongo = MongoClient(conf['mongo_uri'])
         self.conn_index = conf['conn_index']
 
+    @classmethod
+    def init_index(cls):
+        # TODO
+        index = cls.index
+        if not index:
+            return
+        collection = cls.get_collection()
+        try:
+            old_index = collection.index_information()
+        except:
+            return
+        for ikey in index:
+            if not ikey + '_1' in old_index:
+                unique = index[ikey].get('unique',False)
+                if unique is True:
+                    collection.ensure_index(ikey, unique=True)
+                else:
+                    collection.ensure_index(ikey)
+
+    def get_multi(self, obj_class, **query):
+        """ 获得多个数据
+        """
+        collection = self.get_collection(obj_class=obj_class)
+        multi_data = collection.find(query)
+        return multi_data
+
 queryset = QuerySet()

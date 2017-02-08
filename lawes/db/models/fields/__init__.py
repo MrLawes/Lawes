@@ -15,7 +15,7 @@ class Field(RegisterLookupMixin):
         self.value = default
 
 class CharField(Field):
-
+    # TODO index
     def __init__(self, *args, **kwargs):
         super(CharField, self).__init__(*args, **kwargs)
         if not isinstance(self.default, str):

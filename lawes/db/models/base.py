@@ -10,10 +10,10 @@ class ModelBase(type):
         """
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
-        attrs['local_fields'] = []
+        attrs['local_fields'] = {}
         for attr in attrs:
             if hasattr(attrs[attr], 'contribute_to_class'):
-                attrs['local_fields'].append(attr)
+                attrs['local_fields'][attr] = attrs[attr]
             if isinstance(attrs[attr], Field):
                 attrs[attr] = attrs[attr].value
         return type.__new__(cls, name, bases, attrs)
@@ -25,11 +25,7 @@ class Model(object):
     queryset = queryset
 
     def save(self):
-        self.save_base()
-
-    def save_base(self):
-        cls = self.__class__
-        self._save_table(cls=cls)
+        self._save_table(cls=self.__class__)
 
     def _save_table(self, cls=None):
         pk_val = self._get_pk_val()
@@ -54,3 +50,27 @@ class Model(object):
         """ 向 mongodb 插入数据
         """
         return cls.queryset._insert(obj_class=cls, obj=obj, fields=fields)
+
+    @classmethod
+    def filter(cls, **query):
+        objs = []
+        for record in cls.queryset.get_multi(obj_class=cls, **query):
+            obj = cls()
+            for field in cls.local_fields:
+                if field in record:
+                    value = record[field]
+                else:
+                    value = cls.local_fields[field].value
+                setattr(obj, field, value)
+            obj._id = record['_id']
+            objs.append(obj)
+        return objs
+
+    @classmethod
+    def get(cls, **query):
+        obj = cls.filter(**query)
+        if len(obj) >= 2:
+            raise 'The len > 2!'
+        elif len(obj) == 0:
+            raise 'The len is 0!'
+        return obj[0]
