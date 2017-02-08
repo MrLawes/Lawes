@@ -13,12 +13,11 @@ class QuerySet(object):
         self._mongo = None
         self.conn_index = ''
 
-    def _insert(self, obj_class, obj, fields):
+    def _insert(self, obj_class, obj):
         """ 数据库中插入数据，到这里 Model.save() 才算真正完成
             return _id
         """
         collection = self.get_collection(obj_class=obj_class)
-        insert_dict = { field: getattr(obj, field) for field in fields if hasattr(obj, field) }
         return collection.insert(obj.to_dict())
 
     def _update(self, obj_class, obj, fields):
@@ -26,8 +25,9 @@ class QuerySet(object):
             return _id
         """
         collection = self.get_collection(obj_class=obj_class)
-        insert_dict = obj.to_dict()
-        return collection.update({'_id': insert_dict['_id']}, insert_dict, upsert=True)
+        update_dict = obj.to_dict(fields='save_fields')
+        update_dict.pop('_id')
+        return collection.update({'_id': obj._id }, {'$set': update_dict }, upsert=True)
 
     def _get_collection_name(self, obj_class):
         return obj_class.__module__.split('.')[-1] + '_' + obj_class.__name__.lower()

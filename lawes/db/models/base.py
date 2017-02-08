@@ -23,6 +23,12 @@ class Model(object):
     __metaclass__ = ModelBase
     pk_attname = '_id'
     queryset = queryset
+    save_fields = []
+
+    def __setattr__(self, instance, value):
+        if hasattr(self, '_id'):
+            self.save_fields.append(instance)
+        super(Model, self).__setattr__(instance, value)
 
     def save(self):
         self._save_table(cls=self.__class__)
@@ -32,9 +38,9 @@ class Model(object):
         # true: UPDATE; false: INSERT
         pk_set = pk_val is not None
         if pk_set:
-            self._do_update(obj=self, fields=self.local_fields)
+            self._do_update(obj=self, fields=self.save_fields)
         else:
-            result = self._do_insert(obj=self, fields=self.local_fields)
+            result = self._do_insert(obj=self)
             setattr(self, self.pk_attname, result)
 
     def _get_pk_val(self):
@@ -46,10 +52,10 @@ class Model(object):
             return getattr(self, self.pk_attname)
 
     @classmethod
-    def _do_insert(cls, obj, fields):
+    def _do_insert(cls, obj):
         """ 向 mongodb 插入数据
         """
-        return cls.queryset._insert(obj_class=cls, obj=obj, fields=fields)
+        return cls.queryset._insert(obj_class=cls, obj=obj)
 
     @classmethod
     def _do_update(cls, obj, fields):
@@ -81,8 +87,14 @@ class Model(object):
             raise 'The len is 0!'
         return obj[0]
 
-    def to_dict(self):
-        result = { field: getattr(self, field) for field in self.local_fields if hasattr(self, field) }
+    def to_dict(self, fields=''):
+        """ fields： save_fields 显示仅修改的部分
+        """
+        if fields == 'save_fields':
+            fields_type = self.save_fields
+        else:
+            fields_type = self.local_fields
+        result = { field: getattr(self, field) for field in fields_type if hasattr(self, field) }
         if hasattr(self, '_id'):
             result['_id'] = self._id
         return result
