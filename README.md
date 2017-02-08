@@ -1,3 +1,4 @@
+vim run.py 这里必须该文件,因为下面用到了 mongo_db.run_test.find()
 ```
 # -*- coding:utf-8 -*-
 
