@@ -14,4 +14,4 @@
 * conn = MongoClient(conf_dict['mongo_uri'])
 * mongo_db = conn[conf_dict['conn_index']]
 * for i in mongo_db.run_test.find():
-* &nbsp&nbsp&nbsp&nbsp print i
+* \&nbsp\&nbsp\&nbsp\&nbsp print i
