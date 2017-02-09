@@ -7,6 +7,9 @@ from lawes.core.exceptions import ValidationError
 class NOT_PROVIDED:
     pass
 
+class CheckTypeNone(object):
+    pass
+
 class Field(RegisterLookupMixin):
     """ 用于标识是否需要转换和存储的字段
     """
@@ -20,10 +23,10 @@ class Field(RegisterLookupMixin):
         self.value = default
         self.check_type()
 
-    def check_type(self, value=None):
+    def check_type(self, value=CheckTypeNone()):
         """ 检测子类的类型是否正确
         """
-        check_value = value if value else self.value
+        check_value = value if not isinstance(value, CheckTypeNone) else self.value
         if not isinstance(check_value, self.field_type):
             raise ValidationError(message=self.error_message,params={'value': check_value, 'value_type': str(self.field_type)},)
         return True
@@ -62,3 +65,10 @@ class BooleanField(Field):
 
     def __init__(self, *args, **kwargs):
         super(BooleanField, self).__init__(*args, **kwargs)
+
+class ArrayField(Field):
+
+    field_type = list
+
+    def __init__(self, *args, **kwargs):
+        super(ArrayField, self).__init__(*args, **kwargs)
