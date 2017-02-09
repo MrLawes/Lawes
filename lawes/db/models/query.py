@@ -20,7 +20,7 @@ class QuerySet(object):
         collection = self.get_collection(obj_class=obj_class)
         return collection.insert(obj.to_dict())
 
-    def _update(self, obj_class, obj, fields):
+    def _update(self, obj_class, obj):
         """ 数据库中更新数据，到这里 Model.save() 才算真正完成
             return _id
         """

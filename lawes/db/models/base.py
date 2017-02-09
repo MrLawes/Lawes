@@ -25,20 +25,22 @@ class Model(object):
     queryset = queryset
     save_fields = []
 
-    def __setattr__(self, instance, value):
+    def __setattr__(self, key, value):
+        super(Model, self).__setattr__(key, value)
+        if key in self.local_fields:
+            self.local_fields[key].check_type(value=value)
         if hasattr(self, '_id'):
-            self.save_fields.append(instance)
-        super(Model, self).__setattr__(instance, value)
+            self.save_fields.append(key)
 
     def save(self):
-        self._save_table(cls=self.__class__)
+        self._save_table()
 
-    def _save_table(self, cls=None):
+    def _save_table(self):
         pk_val = self._get_pk_val()
         # true: UPDATE; false: INSERT
         pk_set = pk_val is not None
         if pk_set:
-            self._do_update(obj=self, fields=self.save_fields)
+            self._do_update(obj=self)
         else:
             result = self._do_insert(obj=self)
             setattr(self, self.pk_attname, result)
@@ -58,10 +60,10 @@ class Model(object):
         return cls.queryset._insert(obj_class=cls, obj=obj)
 
     @classmethod
-    def _do_update(cls, obj, fields):
+    def _do_update(cls, obj):
         """ 向 mongodb 更新数据
         """
-        return cls.queryset._update(obj_class=cls, obj=obj, fields=fields)
+        return cls.queryset._update(obj_class=cls, obj=obj)
 
     @classmethod
     def filter(cls, **query):
