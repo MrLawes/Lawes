@@ -4,9 +4,6 @@ from lawes.db.models.lookups import RegisterLookupMixin
 import datetime
 from lawes.core.exceptions import ValidationError
 
-class NOT_PROVIDED:
-    pass
-
 class CheckTypeNone(object):
     pass
 
@@ -15,10 +12,11 @@ class Field(RegisterLookupMixin):
     """
     contribute_to_class = None
     error_message = "{value} value has an invalid format. It must be in {value_type} format."
-
+    # 可以不用设置 default, 获得设置成空
+    default_can_set_null = False
     # TODO index
 
-    def __init__(self, default=NOT_PROVIDED, ):
+    def __init__(self, default=None, ):
         self.default = default
         self.value = default
         self.check_type()
@@ -27,6 +25,8 @@ class Field(RegisterLookupMixin):
         """ 检测子类的类型是否正确
         """
         check_value = value if not isinstance(value, CheckTypeNone) else self.value
+        if self.default_can_set_null is True and check_value is None:
+            return True
         if not isinstance(check_value, self.field_type):
             raise ValidationError(message=self.error_message,params={'value': check_value, 'value_type': str(self.field_type)},)
         return True
@@ -53,8 +53,9 @@ class FloatField(Field):
         super(FloatField, self).__init__(*args, **kwargs)
 
 class DateTimeField(Field):
-    # TODO unfinished
-    field_type = datetime
+
+    field_type = datetime.datetime
+    default_can_set_null = True
 
     def __init__(self, *args, **kwargs):
         super(DateTimeField, self).__init__(*args, **kwargs)
