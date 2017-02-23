@@ -14,12 +14,13 @@ class Field(RegisterLookupMixin):
     error_message = "{value} value has an invalid format. It must be in {value_type} format."
     # 可以不用设置 default, 获得设置成空
     default_can_set_null = False
-    # TODO index
 
-    def __init__(self, default=None, ):
+    def __init__(self, default=None, db_index=False, unique=False):
         self.default = default
         self.value = default
         self.check_type()
+        self.db_index = db_index
+        self.unique = unique
 
     def check_type(self, value=CheckTypeNone()):
         """ 检测子类的类型是否正确

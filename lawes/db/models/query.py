@@ -60,24 +60,28 @@ class QuerySet(object):
         self._mongo = MongoClient(conf['mongo_uri'])
         self.conn_index = conf['conn_index']
 
-    @classmethod
-    def init_index(cls):
-        # TODO
-        index = cls.index
-        if not index:
-            return
-        collection = cls.get_collection()
+    def init_index(self, module_name, class_name, attr, unique=False):
+        """ create the index_1
+        """
+        print "module_name, class_name, attr, unique: ", [module_name, class_name, attr, unique]
+        # TODO test
+        db = self.conn_index
+        db = db.lower()
+        db = self.mongo[db]
+        collection_name = module_name + '_' + class_name.lower()
+        collection = getattr(db, collection_name)
         try:
             old_index = collection.index_information()
         except:
             return
-        for ikey in index:
-            if not ikey + '_1' in old_index:
-                unique = index[ikey].get('unique',False)
-                if unique is True:
-                    collection.ensure_index(ikey, unique=True)
-                else:
-                    collection.ensure_index(ikey)
+        if not attr + '_1' in old_index:
+            if unique is True:
+                collection.ensure_index(attr, unique=True)
+            else:
+                collection.ensure_index(attr)
+        elif unique is True:
+            if not 'unique' in old_index[attr + '_1']:
+                collection.ensure_index(attr, unique=True)
 
     def get_multi(self, obj_class, **query):
         """ 获得多个数据

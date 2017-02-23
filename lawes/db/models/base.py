@@ -15,7 +15,10 @@ class ModelBase(type):
             if hasattr(attrs[attr], 'contribute_to_class'):
                 attrs['local_fields'][attr] = attrs[attr]
             if isinstance(attrs[attr], Field):
+                if attrs[attr].db_index is True:
+                    queryset.init_index(module_name=attrs['__module__'], class_name=name, attr=attr, unique=attrs[attr].unique)
                 attrs[attr] = attrs[attr].value
+
         return type.__new__(cls, name, bases, attrs)
 
 class Model(object):
