@@ -9,7 +9,7 @@ conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'conn_index': 'testindex
 # 配置数据库连接方式
 models.setup(conf=conf_dict)
 
-# "D:\Program Files\MongoDB\Server\3.4\bin\mongod.exe" --dbpath d:\test\mongodb\data
+# "D:\Program Files\MongoDB\Server\3.4\bin\mongod.exe" --dbpath d:\test
 
 class Test(models.Model):
     name = models.CharField(default='')
