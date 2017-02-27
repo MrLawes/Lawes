@@ -49,7 +49,7 @@ class Model(object):
             setattr(self, self.pk_attname, result)
 
     def _get_pk_val(self):
-        """ 获得 _id: None: INSERT; not None: UPDATE
+        """ get _id: None: INSERT; not None: UPDATE
         """
         if not hasattr(self, self.pk_attname):
             return None
@@ -64,7 +64,7 @@ class Model(object):
 
     @classmethod
     def _do_update(cls, obj):
-        """ 向 mongodb 更新数据
+        """ doing update in mongodb
         """
         return cls.queryset._update(obj_class=cls, obj=obj)
 

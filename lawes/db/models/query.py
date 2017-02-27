@@ -63,8 +63,6 @@ class QuerySet(object):
     def init_index(self, module_name, class_name, attr, unique=False):
         """ create the index_1
         """
-        print "module_name, class_name, attr, unique: ", [module_name, class_name, attr, unique]
-        # TODO test
         db = self.conn_index
         db = db.lower()
         db = self.mongo[db]
