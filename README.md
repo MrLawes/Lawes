@@ -1,6 +1,6 @@
 vim run.py 这里必须该文件,因为下面用到了 mongo_db.run_test.find()
 
-Frist: pip install lawes==1.2.0
+Frist: pip install lawes
 ```
 # -*- coding:utf-8 -*-
 
