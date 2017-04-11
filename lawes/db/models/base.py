@@ -21,9 +21,11 @@ class ModelBase(type):
 
         return type.__new__(cls, name, bases, attrs)
 
-class Model(object):
+class Model(metaclass=ModelBase):
 
-    __metaclass__ = ModelBase
+# class Model(object):
+#     __metaclass__ = ModelBase
+
     pk_attname = '_id'
     queryset = queryset
     save_fields = []
