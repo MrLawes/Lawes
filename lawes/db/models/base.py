@@ -23,7 +23,7 @@ class ModelBase(type):
 
 class Model(metaclass=ModelBase):
 
-# class Model(object):
+# class Model(object):# for python 2.7
 #     __metaclass__ = ModelBase
 
     pk_attname = '_id'
