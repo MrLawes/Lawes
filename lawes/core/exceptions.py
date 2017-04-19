@@ -10,3 +10,8 @@ class ValidationError(Exception):
 
     def __str__(self):
         return self.message.format(**self.params)
+
+
+class ImproperlyConfigured(Exception):
+    """Lawes is somehow improperly configured"""
+    pass

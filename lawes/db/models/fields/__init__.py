@@ -28,6 +28,7 @@ class Field(RegisterLookupMixin):
         check_value = value if not isinstance(value, CheckTypeNone) else self.value
         if self.default_can_set_null is True and check_value is None:
             return True
+
         if not isinstance(check_value, self.field_type):
             raise ValidationError(message=self.error_message,params={'value': check_value, 'value_type': str(self.field_type)},)
         return True
