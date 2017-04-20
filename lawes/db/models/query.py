@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from pymongo import MongoClient
+from lawes.core.exceptions import MultipleObjectsReturned
+from lawes.core.exceptions import DoesNotExist
 
 CONF_RAESE = """
 from lawes.db import models
@@ -37,7 +39,7 @@ class QuerySet(object):
 
 
     def __init__(self, model=None):
-        self._model = model
+        self.model = model
         self._mongo = configqueryset.mongo
         self._db = configqueryset.conn_index        # the name of the db
         self.app_label = model._meta.app_label      # the name of the collection
@@ -45,6 +47,9 @@ class QuerySet(object):
             raise CONF_RAESE
         self._collection = getattr(self._mongo[self._db], self.app_label)
         self.filter_query = {}                      # using for Model.objects.filter(filter_query)
+        self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
+        self.skip = None                            # using for Model.objects.skip(skip)
+        self.limit = None                           # using for Model.objects.limit(limit)
 
 
     def filter(self, **query):
@@ -57,15 +62,18 @@ class QuerySet(object):
         :return:
         """
         multi_data = self._collection.find(self.filter_query)
+        # order by query
+        if self.order_by_query:
+            multi_data = multi_data.sort(*self.order_by_query)
+
+        if not self.skip is None:
+            multi_data = multi_data.skip(self.skip)
+        if not self.limit is None:
+            multi_data = multi_data.limit(self.limit)
+
         for data in multi_data:
-            obj = self._model()
-            for field in obj._meta.local_fields:
-                if field in data:
-                    value = data[field]
-                else:
-                    value = obj._meta.local_fields[field].value
-                setattr(obj, field, value)
-            obj._id = data['_id']
+            obj = self.model()
+            obj = obj.to_obj(data=data)
             yield obj
 
 
@@ -74,81 +82,81 @@ class QuerySet(object):
             yield data
 
 
-    def _insert(self, obj):
+    def _insert(self, data):
         """
         Inserts a new record for the given model. This provides an interface to
         the InsertQuery class and is how Model.save() is implemented.
         """
-        return self._collection.insert(obj.to_dict())
+        return self._collection.insert(data)
 
 
-    def _update(self, obj):
+    def _update(self, data):
         """
         Inserts a new record for the given model. This provides an interface to
         the InsertQuery class and is how Model.save() is implemented.
         """
-        update_dict = obj.to_dict(fields='save_fields')
-        update_dict.pop('_id')
-        return self._collection.update({'_id': obj._id}, {'$set': update_dict}, upsert=True)
-    #
-    # def to_dict(self, fields=''):
-    #     """ fields： save_fields 显示仅修改的部分
-    #     """
-    #     if fields == 'save_fields':
-    #         fields_type = self.save_fields
-    #     else:
-    #         fields_type = self.local_fields
-    #     result = { field: getattr(self, field) for field in fields_type if hasattr(self, field) }
-    #     if hasattr(self, '_id'):
-    #         result['_id'] = self._id
-    #     return result
-    #
+        mongodb_id = data.pop('_id')
+        return self._collection.update({'_id': mongodb_id}, {'$set': data}, upsert=True)
 
 
-    #
-    # def get_collection(self, obj_class):
-    #     # TODO
-    #     db = self.conn_index
-    #     db = db.lower()
-    #     db = self.mongo[db]
-    #     collection_name = self._get_collection_name(obj_class=obj_class)
-    #     collection = getattr(db, collection_name)
-    #     return collection
-    #
+    def init_index(self, db_indexs):
+        """  create the index_1
+        :param db_indexs: {'name': {'unique': False}}
+        :return:
+        """
+        try:
+            old_index = self._collection.index_information()
+        except:
+            return
 
-    #
+        for attr in db_indexs:
+            unique = db_indexs[attr].get('unique', False)
+            if not attr + '_1' in old_index:
+                if unique is True:
+                    self._collection.ensure_index(attr, unique=True)
+                else:
+                    self._collection.ensure_index(attr)
+            elif unique is True:
+                if not 'unique' in old_index[attr + '_1']:
+                    self._collection.ensure_index(attr, unique=True)
 
-    #
-    # def _get_collection_name(self, obj_class):
-    #     # TODO
-    #     return obj_class.__module__.split('.')[-1] + '_' + obj_class.__name__.lower()
-    #
-    # def init_index(self, module_name, class_name, attr, unique=False):
-    #     """ create the index_1
-    #     """
-    #     # TODO
-    #     db = self.conn_index
-    #     db = db.lower()
-    #     db = self.mongo[db]
-    #     collection_name = module_name + '_' + class_name.lower()
-    #     collection = getattr(db, collection_name)
-    #     try:
-    #         old_index = collection.index_information()
-    #     except:
-    #         return
-    #     if not attr + '_1' in old_index:
-    #         if unique is True:
-    #             collection.ensure_index(attr, unique=True)
-    #         else:
-    #             collection.ensure_index(attr)
-    #     elif unique is True:
-    #         if not 'unique' in old_index[attr + '_1']:
-    #             collection.ensure_index(attr, unique=True)
-    #
-    # def get_multi(self, obj_class, **query):
-    #     """ 获得多个数据
-    #     """
-    #     # TODO
-    #     collection = self.get_collection(obj_class=obj_class)
-    #     multi_data = collection.find(query)
-    #     return multi_data
+
+    def get(self, *args, **kwargs):
+        """
+        Performs the query and returns a single object matching the given
+        keyword arguments.
+        """
+        self.filter_query.update(kwargs)
+        data = self._collection.find(self.filter_query)
+        num = data.count()
+        if num == 1:
+            obj = self.model()
+            obj = obj.to_obj(data=data[0])
+            return obj
+        if not num:
+            raise DoesNotExist(
+                "%s matching query does not exist." %
+                self.filter_query
+            )
+        raise MultipleObjectsReturned(
+            "findone  %s returned more than one -- it returned %s!" %
+            (self.filter_query, num)
+        )
+
+
+    def all(self):
+        self.filter_query = {}
+        return self
+
+
+    def order_by(self, *field_names):
+        field_names = field_names[0]
+        if '-' in field_names:
+            field_names = field_names.replace('-', '')
+            order_index = -1
+        else:
+            order_index = 1
+        self.order_by_query = (field_names, order_index)
+        return self
+
+

@@ -15,3 +15,12 @@ class ValidationError(Exception):
 class ImproperlyConfigured(Exception):
     """Lawes is somehow improperly configured"""
     pass
+
+
+class MultipleObjectsReturned(Exception):
+    """The query returned multiple objects when only one was expected."""
+    pass
+
+class DoesNotExist(Exception):
+    """The query returned None objects when only one was expected."""
+    pass

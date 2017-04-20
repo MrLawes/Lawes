@@ -15,5 +15,5 @@ class Options(object):
     def add_field(self, obj_name, obj):
         self.local_fields[obj_name] = obj
         if isinstance(obj, Field):
-            if obj.db_index is True:
+            if obj.db_index is True or obj.unique is True:
                 self.db_indexs[obj_name] = { 'unique': obj.unique }
