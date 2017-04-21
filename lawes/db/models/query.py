@@ -11,7 +11,7 @@ CONF_RAESE = """
 
 The correct formal is:
 from lawes.db import models
-models.setup(conf={'mongo_uri': 'mongodb://127.0.0.1:27017/test', 'conn_index': 'testindex'})
+models.setup(conf={'mongo_uri': 'mongodb://127.0.0.1:27017/test', 'db_name': 'testindex'})
 self._mongo: %s , self._db: %s
 """
 
@@ -20,7 +20,7 @@ class ConfigQuerySet(object):
 
     def __init__(self):
         self.mongo = None
-        self.conn_index = ''
+        self.db_name = ''
 
 
     def _setup(self, conf):
@@ -28,14 +28,14 @@ class ConfigQuerySet(object):
         """
         if self.mongo:
             return
-        if self.conn_index:
+        if self.db_name:
             return
-        if not 'conn_index' in conf:
+        if not 'db_name' in conf:
             raise MongoClientError(CONF_RAESE % ('', ''))
         if not 'mongo_uri' in conf:
             raise MongoClientError(CONF_RAESE % ('', ''))
         self.mongo = MongoClient(conf['mongo_uri'])
-        self.conn_index = conf['conn_index'].lower()
+        self.db_name = conf['db_name'].lower()
 
 # init the MongoClient
 configqueryset = ConfigQuerySet()
@@ -47,7 +47,7 @@ class QuerySet(object):
     def __init__(self, model=None):
         self.model = model
         self._mongo = configqueryset.mongo
-        self._db = configqueryset.conn_index        # the name of the db
+        self._db = configqueryset.db_name        # the name of the db
         self.db_table = model._meta.db_table      # the name of the collection
         if not self._mongo or not self._db:
             raise MongoClientError(CONF_RAESE % (str(self._mongo), str(self._db)))

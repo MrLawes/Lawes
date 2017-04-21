@@ -6,8 +6,8 @@ Frist: pip install lawes
 
 from lawes.db import models
 from pymongo import MongoClient
-# conn_index:每个项目唯一
-conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'conn_index': 'testindex'}
+# db_name:每个项目唯一
+conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'db_name': 'testindex'}
 # 配置数据库连接方式
 models.setup(conf=conf_dict)
 
@@ -32,7 +32,7 @@ a.address = 'address2'
 a.save()
 
 conn = MongoClient(conf_dict['mongo_uri'])
-mongo_db = conn[conf_dict['conn_index']]
+mongo_db = conn[conf_dict['db_name']]
 for i in mongo_db.run_test.find():
     print(i)
 
