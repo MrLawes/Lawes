@@ -19,7 +19,7 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        'pymongo==2.8',
+        'pymongo>=2.8',
     ],
     version=VERSION,
 )
