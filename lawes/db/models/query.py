@@ -3,6 +3,7 @@
 from pymongo import MongoClient
 from lawes.core.exceptions import MultipleObjectsReturned
 from lawes.core.exceptions import DoesNotExist
+from lawes.core.exceptions import UniqueError
 
 CONF_RAESE = """
 from lawes.db import models
@@ -52,6 +53,21 @@ class QuerySet(object):
         self.limit = None                           # using for Model.objects.limit(limit)
 
 
+    def __iter__(self):
+        for data in self._fetch_all():
+            yield data
+
+
+    def __getitem__(self, item):
+
+        if isinstance(item, int):
+            self.limit = item
+        elif isinstance(item, slice):
+            self.skip = item.start
+            self.limit = item.stop - item.start
+        return self.__iter__()
+
+
     def filter(self, **query):
         self.filter_query.update(query)
         return self
@@ -77,11 +93,6 @@ class QuerySet(object):
             yield obj
 
 
-    def __iter__(self):
-        for data in self._fetch_all():
-            yield data
-
-
     def _insert(self, data):
         """
         Inserts a new record for the given model. This provides an interface to
@@ -104,6 +115,7 @@ class QuerySet(object):
         :param db_indexs: {'name': {'unique': False}}
         :return:
         """
+
         try:
             old_index = self._collection.index_information()
         except:
@@ -142,6 +154,43 @@ class QuerySet(object):
             "findone  %s returned more than one -- it returned %s!" %
             (self.filter_query, num)
         )
+
+
+    def get_or_create(self, **kwargs):
+        """
+        :param kwargs:  name='x'
+        :return:  a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        created = False
+        index_information = self._collection.index_information()
+        kwargs_keys = set(kwargs.keys())
+        index_keys = [ filed for filed in index_information if index_information[filed].get('unique', False)]
+        index_keys = [ index_key.replace('_1', '').replace('_-1', '') for index_key in index_keys ]
+        need_index_set = kwargs_keys - set(index_keys)
+        db_indexs = self.model._meta.db_indexs
+        if need_index_set:
+            raise UniqueError('UNIQUE constraint failed: %s: %s, please do collection.ensure_index' % (
+            self.app_label, str(need_index_set)))
+        self.filter_query.update(kwargs)
+        data = self._collection.find(self.filter_query)
+        num = data.count()
+        if num == 1:
+            to_obj_data = data[0]
+        elif not num:
+            to_obj_data = kwargs
+            created = True
+        else:
+            raise MultipleObjectsReturned(
+                "findone  %s returned more than one -- it returned %s!" %
+                (self.filter_query, num)
+            )
+
+        obj = self.model()
+        obj = obj.to_obj(data=to_obj_data)
+        if not num:
+            obj.save()
+        return obj, created
 
 
     def all(self):

@@ -134,5 +134,7 @@ class Model(six.with_metaclass(ModelBase)):
             else:
                 value = self._meta.local_fields[field].value
             setattr(self, field, value)
-        self._id = data['_id']
+        if '_id' in data:
+            self._id = data['_id']
         return self
+
