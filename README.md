@@ -21,10 +21,14 @@ a = Test()
 a.name = 'lawes'
 a.save()
 # 查找多个记录
-a = Test.filter(name='name1')
+a = Test.objects.filter(name='name1')
 # 查找一个记录
-a = Test.get(name='name1')
+a = Test.objects.get(name='name1')
 a.address = 'address'
+a.save()
+
+a = Test.objects.get_or_create(name='name2')
+a.address = 'address2'
 a.save()
 
 conn = MongoClient(conf_dict['mongo_uri'])
