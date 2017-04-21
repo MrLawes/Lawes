@@ -128,6 +128,8 @@ class Model(six.with_metaclass(ModelBase)):
 
     def to_obj(self, data={}):
 
+        for field in data:
+            setattr(self, field, data[field])
         for field in self._meta.local_fields:
             if field in data:
                 value = data[field]

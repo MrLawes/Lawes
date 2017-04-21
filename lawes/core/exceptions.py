@@ -36,6 +36,7 @@ class UniqueError(Exception):
     pass
 
 
-
+class MongoClientError(Exception):
+    pass
 
 

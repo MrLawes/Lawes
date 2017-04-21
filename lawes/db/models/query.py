@@ -4,11 +4,15 @@ from pymongo import MongoClient
 from lawes.core.exceptions import MultipleObjectsReturned
 from lawes.core.exceptions import DoesNotExist
 from lawes.core.exceptions import UniqueError
+from lawes.core.exceptions import MongoClientError
 from pymongo.errors import OperationFailure
 
 CONF_RAESE = """
+
+The correct formal is:
 from lawes.db import models
 models.setup(conf={'mongo_uri': 'mongodb://127.0.0.1:27017/test', 'conn_index': 'testindex'})
+self._mongo: %s , self._db: %s
 """
 
 class ConfigQuerySet(object):
@@ -27,9 +31,9 @@ class ConfigQuerySet(object):
         if self.conn_index:
             return
         if not 'conn_index' in conf:
-            raise CONF_RAESE
+            raise MongoClientError(CONF_RAESE % ('', ''))
         if not 'mongo_uri' in conf:
-            raise CONF_RAESE
+            raise MongoClientError(CONF_RAESE % ('', ''))
         self.mongo = MongoClient(conf['mongo_uri'])
         self.conn_index = conf['conn_index'].lower()
 
@@ -46,7 +50,7 @@ class QuerySet(object):
         self._db = configqueryset.conn_index        # the name of the db
         self.db_table = model._meta.db_table      # the name of the collection
         if not self._mongo or not self._db:
-            raise CONF_RAESE
+            raise MongoClientError(CONF_RAESE % (str(self._mongo), str(self._db)))
         self._collection = getattr(self._mongo[self._db], self.db_table)
         self.filter_query = {}                      # using for Model.objects.filter(filter_query)
         self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
