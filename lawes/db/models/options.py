@@ -27,9 +27,12 @@ class Options(object):
             if attr_name in DEFAULT_NAMES:
                 setattr(self, attr_name, meta_attrs[attr_name])
 
-
     def add_field(self, obj_name, obj):
         self.local_fields[obj_name] = obj
         if isinstance(obj, Field):
             if obj.db_index is True or obj.unique is True:
                 self.db_indexs[obj_name] = { 'unique': obj.unique }
+
+
+    def __str__(self):
+        return ''
