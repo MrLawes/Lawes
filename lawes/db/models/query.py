@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from lawes.core.exceptions import MultipleObjectsReturned
 from lawes.core.exceptions import DoesNotExist
 from lawes.core.exceptions import UniqueError
+from pymongo.errors import OperationFailure
 
 CONF_RAESE = """
 from lawes.db import models
@@ -43,10 +44,10 @@ class QuerySet(object):
         self.model = model
         self._mongo = configqueryset.mongo
         self._db = configqueryset.conn_index        # the name of the db
-        self.app_label = model._meta.app_label      # the name of the collection
+        self.db_table = model._meta.db_table      # the name of the collection
         if not self._mongo or not self._db:
             raise CONF_RAESE
-        self._collection = getattr(self._mongo[self._db], self.app_label)
+        self._collection = getattr(self._mongo[self._db], self.db_table)
         self.filter_query = {}                      # using for Model.objects.filter(filter_query)
         self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
         self.skip = None                            # using for Model.objects.skip(skip)
@@ -110,16 +111,16 @@ class QuerySet(object):
         return self._collection.update({'_id': mongodb_id}, {'$set': data}, upsert=True)
 
 
-    def init_index(self, db_indexs):
+    def init_index(self):
         """  create the index_1
         :param db_indexs: {'name': {'unique': False}}
         :return:
         """
-
+        db_indexs = self.model._meta.db_indexs
         try:
             old_index = self._collection.index_information()
-        except:
-            return
+        except OperationFailure:
+            old_index = {}
 
         for attr in db_indexs:
             unique = db_indexs[attr].get('unique', False)
@@ -163,15 +164,18 @@ class QuerySet(object):
         specifying whether an object was created.
         """
         created = False
-        index_information = self._collection.index_information()
+        try:
+            index_information = self._collection.index_information()
+        except OperationFailure:
+            index_information = {}
+
         kwargs_keys = set(kwargs.keys())
         index_keys = [ filed for filed in index_information if index_information[filed].get('unique', False)]
         index_keys = [ index_key.replace('_1', '').replace('_-1', '') for index_key in index_keys ]
         need_index_set = kwargs_keys - set(index_keys)
-        db_indexs = self.model._meta.db_indexs
         if need_index_set:
             raise UniqueError('UNIQUE constraint failed: %s: %s, please do collection.ensure_index' % (
-            self.app_label, str(need_index_set)))
+            self.db_table, str(need_index_set)))
         self.filter_query.update(kwargs)
         data = self._collection.find(self.filter_query)
         num = data.count()

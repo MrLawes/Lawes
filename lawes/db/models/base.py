@@ -22,9 +22,9 @@ class ModelBase(type):
         meta = attrs.pop('Meta', None)
         if not meta:
             meta = getattr(new_class, 'Meta', None)
-        # app_label is the collection name in mongodb
-        app_label = new_class.__module__.split('.')[-1] + '_' + new_class.__name__.lower()
-        kwargs = {"app_label": app_label}
+        # db_table is the collection name in mongodb
+        db_table = new_class.__module__.split('.')[-1] + '_' + new_class.__name__.lower()
+        kwargs = {"db_table": db_table}
         new_class._meta = Options(meta, **kwargs)
 
         # set the local_fields at Options: {'name': lawes.db.models.fields.CharField}
