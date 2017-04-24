@@ -9,10 +9,17 @@ Welcome to lawes's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
    first_steps
+   
+   
+Contents:
 
+.. toctree::
+    :maxdepth: 2
 
+    first_steps
+    
+    
 
 Indices and tables
 ==================
