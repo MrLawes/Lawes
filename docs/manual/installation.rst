@@ -10,7 +10,7 @@ To install using `pip`,
 
 .. code-block:: sh
 
-    $ pip install :lawes:==|version|
+    $ pip install :lawes==:|version|
 
 .. _installing-from-source:
 
