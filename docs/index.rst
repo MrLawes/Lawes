@@ -6,10 +6,21 @@
 Welcome to lawes's documentation!
 =================================
 
+   
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Documentation
 
+   getting_started
+   versions
+   builds
+   features
+   support
+   faq
+   yaml-config
+   guides/index
+   api
+   embed
 
 
 Indices and tables
