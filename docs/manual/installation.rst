@@ -6,14 +6,11 @@ Installation
 You can install Lawes either via the Python Package Index (PyPI)
 or from source.
 
-To install using `pip`,
-
-   :Release: |version|
+To install using `pip`, the version using :'==':|version|
 
 .. code-block:: sh
 
     $ pip install :lawes==:|version|
-    :Release: |version|
 
 .. _installing-from-source:
 
