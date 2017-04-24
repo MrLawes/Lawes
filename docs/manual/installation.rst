@@ -11,6 +11,7 @@ To install using `pip`,
 .. code-block:: sh
 
     $ pip install :lawes==:|version|
+    :Release: |version|
 
 .. _installing-from-source:
 
