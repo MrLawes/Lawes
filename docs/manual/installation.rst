@@ -1,24 +1,18 @@
-.. _pyes-installation:
+.. _installation:
 
 Installation
 ============
 
-You can install PyES either via the Python Package Index (PyPI)
+You can install Lawes either via the Python Package Index (PyPI)
 or from source.
 
 To install using `pip`,
 
 .. code-block:: sh
 
-    $ pip install pyes
+    $ pip install lawes==|version|
 
-To install using `easy_install`,
-
-.. code-block:: sh
-
-    $ easy_install pyes
-
-.. _pyes-installing-from-source:
+.. _installing-from-source:
 
 Downloading and installing from source
 --------------------------------------
