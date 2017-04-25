@@ -1,12 +1,22 @@
 Usage
 =====
 
-Creating a connection. (See more details here :ref:`pyes-connections`)
+Creating a connection. (the connection default with file's name and model's name)
 
 .. code-block:: python
 
-    >>> from pyes import *
-    >>> conn = ES('127.0.0.1:9200') # Use HTTP
+    >>> from lawes.db import models
+    >>> conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'db_name': 'testindex'}
+    >>> models.setup(conf=conf_dict)
+    >>> class Test(models.Model):
+    >>>     name = models.CharField(default='')
+    >>> 
+    >>> obj = Test()
+    >>> obj.name = 'yourname'
+    >>> obj.save()
+    
+
+
 
 Deleting an index:
 
