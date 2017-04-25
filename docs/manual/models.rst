@@ -1,4 +1,4 @@
-Models
+Fields
 =====
 
 Creating a model in model.py (Don't change the file's name! The connection is named with file's name and model's name)
