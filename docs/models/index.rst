@@ -8,4 +8,4 @@ A model is the single, definitive source of information about your data. It cont
     :maxdepth: 2
 
     fields
-
+    models

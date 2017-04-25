@@ -25,7 +25,7 @@ Creating a connection in test.py and running it with 'python test.py':
     >>> from model import Fruit
     >>> if __name__ == '__main__':
     >>>     obj = Fruit()
-    >>>     obj.save()
+   >>>     obj.save()
 
 Finding the data in MongoDB:
     
@@ -63,16 +63,10 @@ This option is valid on all field types.
 
 Note that when unique is True, you don’t need to specify db_index, because unique implies the creation of an index.
 
+.. _field_type:
+
 Field types
 =====
-
-Automatic primary key fields
---------------------------------------
-By default, Lawes gives each model the following field:
-
-_id = str
-
-This is a primary key that comes from mongodb's _id.
 
 CharField
 --------------------------------------
@@ -97,4 +91,46 @@ A bool field, the default value for this field is False.
 ArrayField
 --------------------------------------
 A list field, the default value for this field is [].
+
+Automatic primary key fields
+--------------------------------------
+By default, Lawes gives each model the following field:
+
+_id = str
+
+This is a primary key that comes from mongodb's _id.
+
+.. _meta_options:
+
+Meta options
+=====
+Give your model metadata by using an inner class Meta, like so:
+
+.. code-block:: python
+
+    >>> class Fruit(models.Model):
+    >>>     name = models.CharField(default='mongo')
+    >>>     num = models.IntegerField(default=88)
+    >>>     price = models.FloatField(default=10.5)
+    >>>     buy_date = models.DateTimeField(default=datetime.datetime.now())
+    >>>     online = models.BooleanField(default=True)
+    >>>     colors = models.ArrayField(default=['green', 'yellow'])
+    >>>     class Meta:
+    >>>         db_table = 'my_fruit'
+
+Model Meta options
+--------------------------------------
+
+db_table
+--------------------------------------
+The name of the collection in mongodb to use for the model:
+
+Finding the data in MongoDB:
+
+.. code-block:: sh
+
+    $ mongo --port 27017
+    > use testindex
+     > db.my_fruit.find()
+
 
