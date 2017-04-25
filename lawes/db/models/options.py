@@ -20,7 +20,10 @@ class Options(object):
         self.db_indexs = {}
         self.meta = meta
         # set attribute for Option from Model's Meta
-        meta_attrs = self.meta.__dict__.copy()
+        if meta:
+            meta_attrs = self.meta.__dict__.copy()
+        else:
+            meta_attrs = {}
         for attr_name in meta_attrs:
             if attr_name.startswith('_'):
                 continue
