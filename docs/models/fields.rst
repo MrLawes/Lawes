@@ -37,3 +37,28 @@ Finding the data in MongoDB:
     > { "_id" : ObjectId("58fecad31d41c839e6db0373"), "num" : 88, "name" : "mongo", "price" : 10.5, "colors" : [  "green",  "yellow" ], "buy_date" : ISODate("2017-04-25T12:04:35.673Z"), "online" : true }
 
 
+.. _field_options:
+
+Field options
+=====
+
+Each field takes a certain set of field-specific arguments. For example, CharField (and its subclasses) require a default argument which specifies the default value used to store the data.
+There’s also a set of common arguments available to all field types. All are optional. Here’s a quick summary of the most often-used ones:
+
+default
+--------------------------------------
+The default value for the field. This can be a value. If callable it will be called every time a new object is created.
+
+db_index
+--------------------------------------
+If True, a database index will be created for this field.When only call Model.objects.init_index(), the database index does not be created by itself.
+
+unique
+--------------------------------------
+If True, this field must be unique throughout the table.
+
+This is enforced at the database level and by model validation. If you try to save a model with a duplicate value in a unique field, an Error will be raised by the model’s save() method.
+
+This option is valid on all field types.
+
+Note that when unique is True, you don’t need to specify db_index, because unique implies the creation of an index.
