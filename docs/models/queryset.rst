@@ -29,9 +29,22 @@ Slicing an unevaluated QuerySet usually returns another unevaluated QuerySet, bu
 Slicing a QuerySet that has been evaluated also returns a list.
 
 .. code-block:: python
-
+    >>> from model import Fruit
     >>> for fruit in Fruit.objects.filter()[:1]:
     >>>     print fruit.name
+
+.. _ensure_index:
+Ensure Index
+=====
+Some database indexs will be created for the fields.
+
+init_index()
+--------------------------------------
+If db_index is True, a database index will be created for this field.
+
+.. code-block:: python
+    >>> from model import Fruit
+    >>> Fruit.objects.init_index()
 
 .. _queryset_api:
 
