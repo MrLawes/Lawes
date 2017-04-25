@@ -48,6 +48,23 @@ To update:
     $ cd Lawes
     $ git pull origin master
 
+.. code-block:: sh
+
+    $ git clone git@github.com:MrLawes/Lawes.git
+    $ cd Lawes
+    $ python setup.py install
+
+To update:
+
  The supports:
  
  You must start MongoDB Server first, you can visit https://www.mongodb.com/ and get started.
+
+
+.. code-block:: sh
+
+    $ git clone git@github.com:MrLawes/Lawes.git
+    $ cd Lawes
+    $ python setup.py install
+
+To update:
