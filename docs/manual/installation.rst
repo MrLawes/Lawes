@@ -52,9 +52,10 @@ The supports:
  
  You must start MongoDB Server first, you can visit https://www.mongodb.com/ and get started.
  Testing whether if it is running: 
- 
+
 .. code-block:: sh
+
     $ mongo
-    
+
 
 
