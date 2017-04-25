@@ -75,7 +75,10 @@ class QuerySet(object):
 
 
     def filter(self, **query):
-        self.filter_query.update(query)
+        if query == {}:
+            self.filter_query = {}
+        else:
+            self.filter_query.update(query)
         return self
 
 

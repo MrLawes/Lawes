@@ -92,3 +92,17 @@ If you want to use get_or_create(), the field must be set unique.
     >>> obj, created = Fruit.objects.get_or_create(name='mongo')
     >>> obj.name
 
+delete()
+--------------------------------------
+Performs an SQL delete query on all rows in the QuerySet and returns the number of objects deleted and a dictionary with the number of deletions per object type.
+
+For example, to delete all the entries in a particular blog:
+
+.. code-block:: python
+
+    >>> from models import Fruit
+    >>> Fruit.objects.filter(name='mongo').delete()
+    >>> for fruit in Fruit.objects.filter(name='mongo'):
+    >>>     print fruit.delete()
+
+
