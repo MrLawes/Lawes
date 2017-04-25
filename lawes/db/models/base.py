@@ -140,3 +140,6 @@ class Model(six.with_metaclass(ModelBase)):
             self._id = data['_id']
         return self
 
+
+    def delete(self):
+        return self.objects._remove(_id=self._id)

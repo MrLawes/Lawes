@@ -6,6 +6,7 @@ from lawes.core.exceptions import DoesNotExist
 from lawes.core.exceptions import UniqueError
 from lawes.core.exceptions import MongoClientError
 from pymongo.errors import OperationFailure
+from bson.objectid import ObjectId
 
 CONF_RAESE = """
 
@@ -78,7 +79,7 @@ class QuerySet(object):
         return self
 
 
-    def _fetch_all(self):
+    def _fetch_all(self, originally=False):
         """ run the sql actually
         :return:
         """
@@ -92,10 +93,14 @@ class QuerySet(object):
         if not self.limit is None:
             multi_data = multi_data.limit(self.limit)
 
-        for data in multi_data:
-            obj = self.model()
-            obj = obj.to_obj(data=data)
-            yield obj
+        if originally is True:
+            for data in multi_data:
+                yield data
+        else:
+            for data in multi_data:
+                obj = self.model()
+                obj = obj.to_obj(data=data)
+                yield obj
 
 
     def _insert(self, data):
@@ -201,11 +206,6 @@ class QuerySet(object):
         return obj, created
 
 
-    # def all(self):
-    #     self.filter_query = {}
-    #     return self
-
-
     def order_by(self, *field_names):
         field_names = field_names[0]
         if '-' in field_names:
@@ -216,4 +216,16 @@ class QuerySet(object):
         self.order_by_query = (field_names, order_index)
         return self
 
+
+    def delete(self):
+        """
+        Deletes the records in the current QuerySet.
+        """
+        for data in self._fetch_all(originally=True):
+            self._remove(_id=str(data['_id']))
+
+
+    def _remove(self, _id):
+        remove_dict = {'_id': ObjectId(_id)}
+        self._collection.remove(remove_dict)
 
