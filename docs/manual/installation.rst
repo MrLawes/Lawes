@@ -10,7 +10,7 @@ To install using `pip`, the version using : pip install lawes== |version|
 
 .. code-block:: sh
 
-    $ pip install lawes
+    $ sudo pip install lawes
 
 .. _installing-from-source:
 
@@ -51,5 +51,10 @@ To update:
 The supports:
  
  You must start MongoDB Server first, you can visit https://www.mongodb.com/ and get started.
+ Testing whether if it is running: 
+ 
+.. code-block:: sh
+    $ mongo
+    
 
 
