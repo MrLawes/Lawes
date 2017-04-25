@@ -32,8 +32,8 @@ Finding the data in MongoDB:
 .. code-block:: sh
 
     $ mongo --port 27017
-    $ use testindex
-    $ db.model_fruit.find()
+    > use testindex
+    > db.model_fruit.find()
     > { "_id" : ObjectId("58fecad31d41c839e6db0373"), "num" : 88, "name" : "mongo", "price" : 10.5, "colors" : [  "green",  "yellow" ], "buy_date" : ISODate("2017-04-25T12:04:35.673Z"), "online" : true }
 
 
