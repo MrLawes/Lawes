@@ -11,8 +11,8 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    manual/index
-    manual/models
+    started/index
+    models/index
 
 
 Indices and tables
