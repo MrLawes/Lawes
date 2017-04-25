@@ -9,7 +9,7 @@ Creating a model in model.py (Don't change the file's name! The connection is na
     >>> class Test(models.Model):
     >>>     name = models.CharField(default='')
 
-Creating a connection in test.py (Don't change the file's name! The connection is named with file's name and model's name)
+Creating a connection in test.py: 
 
 .. code-block:: python
 
