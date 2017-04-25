@@ -76,20 +76,25 @@ This is a primary key that comes from mongodb's _id.
 
 CharField
 --------------------------------------
-
+A str field, the default value for this field is ''.
 
 IntegerField
 --------------------------------------
+A int field, the default value for this field is 0.
 
 FloatField
 --------------------------------------
+A float field, the default value for this field is 0.0.
 
 DateTimeField
 --------------------------------------
+A Datetime field, the default value for this field is None.
 
 BooleanField
 --------------------------------------
+A bool field, the default value for this field is False.
 
 ArrayField
 --------------------------------------
+A list field, the default value for this field is [].
 
