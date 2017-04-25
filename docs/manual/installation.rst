@@ -8,6 +8,11 @@ or from source.
 
 To install using `pip`, the version using : pip install lawes==|version|
 
+:Release: |version|
+Release: |version|
+:Release|version|
+|version|
+
 .. code-block:: sh
 
     $ pip install lawes
