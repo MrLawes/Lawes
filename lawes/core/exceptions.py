@@ -40,3 +40,5 @@ class MongoClientError(Exception):
     pass
 
 
+class DefaultError(Exception):
+    pass
