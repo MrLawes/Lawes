@@ -56,6 +56,8 @@ The supports:
 .. code-block:: sh
 
     $ mongo
+    >MongoDB shell version: 2.4.9
+    >connecting to: test
 
 
 
