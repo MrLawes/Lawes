@@ -10,4 +10,3 @@
 
     installation
     usage
-    models
