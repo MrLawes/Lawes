@@ -201,9 +201,9 @@ class QuerySet(object):
         return obj, created
 
 
-    def all(self):
-        self.filter_query = {}
-        return self
+    # def all(self):
+    #     self.filter_query = {}
+    #     return self
 
 
     def order_by(self, *field_names):
