@@ -62,3 +62,11 @@ This is enforced at the database level and by model validation. If you try to sa
 This option is valid on all field types.
 
 Note that when unique is True, you don’t need to specify db_index, because unique implies the creation of an index.
+
+Automatic primary key fields
+--------------------------------------
+By default, Lawes gives each model the following field:
+
+_id = str
+
+This is a primary key that comes from mongodb's _id.
