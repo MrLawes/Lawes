@@ -12,6 +12,7 @@ Contents:
     :maxdepth: 2
 
     manual/index
+    manual/models
 
 
 Indices and tables
