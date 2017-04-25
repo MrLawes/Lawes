@@ -48,8 +48,6 @@ To update:
     $ cd Lawes
     $ git pull origin master
 
-To update:
-
 The supports:
  
  You must start MongoDB Server first, you can visit https://www.mongodb.com/ and get started.
