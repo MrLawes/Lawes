@@ -17,8 +17,8 @@ class ModelBase(type):
 
         # Create the class.
         # new_class = super_new(cls, name, bases, attrs)
-        module = attrs.pop('__module__')
-        new_class = super_new(cls, name, bases, {'__module__': module})
+        # module = attrs.pop('__module__')
+        new_class = super_new(cls, name, bases, attrs)
         meta = attrs.pop('Meta', None)
         if not meta:
             meta = getattr(new_class, 'Meta', None)
