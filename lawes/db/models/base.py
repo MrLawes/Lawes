@@ -3,6 +3,9 @@
 from lawes.db.models.query import QuerySet
 from lawes.utils import six
 from lawes.db.models.options import Options
+import json
+import datetime
+import copy
 
 class ModelBase(type):
 
@@ -125,6 +128,13 @@ class Model(six.with_metaclass(ModelBase)):
 
         return result
 
+    def to_dict_format(self):
+        result = copy.deepcopy(self.to_dict())
+        for r in result:
+            if isinstance(result[r], datetime.datetime):
+                result[r] = str(result[r])
+        result = json.dumps(result, indent=4)
+        return result
 
     def to_obj(self, data={}):
 
