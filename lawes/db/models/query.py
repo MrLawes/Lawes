@@ -65,7 +65,6 @@ class QuerySet(object):
 
 
     def __getitem__(self, item):
-
         if isinstance(item, int):
             self.limit = item
         elif isinstance(item, slice):
@@ -147,6 +146,7 @@ class QuerySet(object):
                     self._collection.ensure_index(attr)
             elif unique is True:
                 if not 'unique' in old_index[attr + '_1']:
+                    self._collection.drop_index(attr + '_1')
                     self._collection.ensure_index(attr, unique=True)
 
 
