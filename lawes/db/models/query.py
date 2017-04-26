@@ -71,7 +71,11 @@ class QuerySet(object):
         elif isinstance(item, slice):
             self.skip = item.start
             self.limit = item.stop - item.start
-        return self.__iter__()
+        if isinstance(item, int):
+            for iter_item in self.__iter__():
+                return iter_item
+        else:
+            return self.__iter__()
 
 
     def filter(self, **query):
