@@ -7,6 +7,8 @@ Creating a model in model.py (Don't change the file's name! The connection is na
 
 .. code-block:: python
 
+    >>> from lawes.db import models
+    >>> import datetime
     >>> class Fruit(models.Model):
     >>>     name = models.CharField(default='mongo')
     >>>     num = models.IntegerField(default=88)
