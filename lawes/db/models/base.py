@@ -6,6 +6,7 @@ from lawes.db.models.options import Options
 import json
 import datetime
 import copy
+from bson.objectid import ObjectId
 
 class ModelBase(type):
 
@@ -130,10 +131,13 @@ class Model(six.with_metaclass(ModelBase)):
 
     def to_dict_format(self):
         result = copy.deepcopy(self.to_dict())
+        to_str_list = (datetime.datetime, ObjectId)
         for r in result:
-            if isinstance(result[r], datetime.datetime):
-                result[r] = str(result[r])
-        result = json.dumps(result, indent=4)
+            for to_obj_type in to_str_list:
+                if isinstance(result[r], to_obj_type):
+                    result[r] = str(result[r])
+
+        result = json.dumps(result, indent=4, ensure_ascii=False)
         return result
 
     def to_obj(self, data={}):
