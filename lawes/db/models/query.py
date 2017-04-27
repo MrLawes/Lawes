@@ -76,11 +76,34 @@ class QuerySet(object):
         else:
             return self.__iter__()
 
+    def filter_comparsion(self, query):
+        """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
+        :param query: { 'key' : {$gt : 2000} }
+        :return:
+        """
+        c_query = {}
+        match_dict = {
+            '__gt': '$gt',
+            '__gte': '$gte',
+            '__lt': '$lt',
+            '__lte': '$lte',
+            '__ne': '$ne',
+        }
+        for qkey in query:
+            if '__' in  qkey:
+                startwith, endwith = qkey.split('__')
+                if '__' + endwith in match_dict:
+                    c_query[startwith] = { match_dict['__' + endwith ] :query[qkey]}
+            else:
+                c_query[qkey] = query[qkey]
+        return c_query
+
 
     def filter(self, **query):
         if query == {}:
             self.filter_query = {}
         else:
+            query = self.filter_comparsion(query=query)
             self.filter_query.update(query)
         return self
 
