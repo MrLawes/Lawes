@@ -137,7 +137,7 @@ class Model(six.with_metaclass(ModelBase)):
                 if isinstance(result[r], to_obj_type):
                     result[r] = str(result[r])
 
-        result = json.dumps(result, indent=4, ensure_ascii=False)
+        result = json.dumps(result, indent=4, ensure_ascii=False, sort_keys=True)
         return result
 
     def to_obj(self, data={}):
