@@ -23,7 +23,7 @@ A helper function to show all of values for key with 'indent=4' dumped dictionar
 
     >>> from model import Fruit
     >>> fruit = Fruit()
-    >>> print(fruit.to_dict())
+    >>> print(fruit.to_dict_format())
     >>> {
             "name": "mongo",
             "buy_date": "2017-04-27 09:38:01.919688",
