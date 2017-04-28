@@ -125,4 +125,15 @@ For example, to delete all the entries in a particular blog:
     >>> for fruit in Fruit.objects.filter(name='mongo'):
     >>>     print fruit.delete()
 
+count()
+--------------------------------------
+It will returns the number of records as an integer.
+
+.. code-block:: python
+
+    >>> from models import Fruit
+    >>> print(Fruit.objects.filter(name='mongo').count())
+    >>> 1
+    >>> print(bool(Fruit.objects.filter(name='mongo')))
+    >>> True
 

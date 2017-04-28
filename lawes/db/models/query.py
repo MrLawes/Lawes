@@ -80,9 +80,11 @@ class QuerySet(object):
 
 
     def __bool__(self):
-        for item in self._fetch_all():
-            return True
-        return False
+        return bool(self.count())
+
+
+    def count(self):
+        return self._exec_sql().count()
 
 
     def filter_comparsion(self, query):
@@ -129,10 +131,7 @@ class QuerySet(object):
         return obj
 
 
-    def _fetch_all(self, originally=False):
-        """ run the sql actually
-        :return:
-        """
+    def _exec_sql(self):
         multi_data = self._collection.find(self.filter_query)
         # order by query
         if self.order_by_query:
@@ -142,7 +141,13 @@ class QuerySet(object):
             multi_data = multi_data.skip(self.skip)
         if not self.limit is None:
             multi_data = multi_data.limit(self.limit)
+        return multi_data
 
+    def _fetch_all(self, originally=False):
+        """ run the sql actually
+        :return:
+        """
+        multi_data = self._exec_sql()
         if originally is True:
             for data in multi_data:
                 yield data
