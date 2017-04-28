@@ -111,6 +111,8 @@ class QuerySet(object):
 
     def filter(self, **query):
         obj = self.clone()
+        if '_id' in query:
+            query['_id'] = ObjectId(query['_id'])
         obj.query_flag = True
         if query == {}:
             obj.filter_query = {}
@@ -225,7 +227,7 @@ class QuerySet(object):
         index_keys = [ index_key.replace('_1', '').replace('_-1', '') for index_key in index_keys ]
         need_index_set = kwargs_keys - set(index_keys)
         if need_index_set:
-            raise UniqueError('UNIQUE constraint failed: %s: %s, please do collection.ensure_index' % (
+            raise UniqueError('UNIQUE constraint failed: %s: %s, please do collection.ensure_index: Model.objects.init_index()' % (
             self.db_table, str(need_index_set)))
         self.filter_query.update(kwargs)
         data = self._collection.find(self.filter_query)

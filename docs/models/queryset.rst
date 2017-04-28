@@ -58,7 +58,7 @@ Django provides a range of QuerySet refinement methods that modify either the ty
 
 filter()
 --------------------------------------
-Returns a new QuerySet containing objects that match the given lookup parameters.
+Returns a new QuerySet containing objects that match the given lookup parameters.Also you can find the _id in mongodb.
 
 The lookup parameters (**kwargs) should be in the format described in Field lookups below. Multiple parameters are joined via AND in the underlying SQL statement.
 The paramaters can with extra '__' like: __gt,__gte,__lt,__lte,__ne. They will find with comparsion: 'g' meas 'greater'; 't' means 'than'; e means 'equality'; 'n' means 'not';
@@ -70,6 +70,7 @@ The paramaters can with extra '__' like: __gt,__gte,__lt,__lte,__ne. They will f
     >>> for fruit in fruits:
     >>>     print fruit.name
     >>> fruits = Fruit.objects.filter(name__gt='mongo')
+    >>> fruits = Fruit.objects.filter(_id='58f71dafd97f0e1b886b0d1c')
 
 order_by()
 --------------------------------------

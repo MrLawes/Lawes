@@ -63,7 +63,8 @@ class Model(six.with_metaclass(ModelBase)):
     def __setattr__(self, key, value):
         super(Model, self).__setattr__(key, value)
         if hasattr(self, '_id'):
-            self.save_fields.append(key)
+            if not key in self.save_fields:
+                self.save_fields.append(key)
 
 
     def save(self):
