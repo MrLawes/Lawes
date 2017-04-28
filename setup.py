@@ -3,7 +3,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-VERSION = '1.9.2.8'
+VERSION = '1.9.2.9'
 
 setup(
     name='Lawes',
