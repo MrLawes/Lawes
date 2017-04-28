@@ -46,10 +46,12 @@ class QuerySet(object):
 
 
     def __init__(self, model=None):
+
+        self.query_flag = False                    # set the query_flag to True after filer, order_by , that the methon only return QuerySet
         self.model = model
         self._mongo = configqueryset.mongo
-        self._db = configqueryset.db_name        # the name of the db
-        self.db_table = model._meta.db_table      # the name of the collection
+        self._db = configqueryset.db_name           # the name of the db
+        self.db_table = model._meta.db_table        # the name of the collection
         if not self._mongo or not self._db:
             raise MongoClientError(CONF_RAESE % (str(self._mongo), str(self._db)))
         self._collection = getattr(self._mongo[self._db], self.db_table)
@@ -99,13 +101,23 @@ class QuerySet(object):
         return c_query
 
 
-    def filter(self, **query):
-        if query == {}:
-            self.filter_query = {}
+    def clone(self):
+        if self.query_flag is False:
+            obj = QuerySet(model=self.model)
         else:
-            query = self.filter_comparsion(query=query)
-            self.filter_query.update(query)
-        return self
+            obj = self
+        return obj
+
+
+    def filter(self, **query):
+        obj = self.clone()
+        obj.query_flag = True
+        if query == {}:
+            obj.filter_query = {}
+        else:
+            query = obj.filter_comparsion(query=query)
+            obj.filter_query.update(query)
+        return obj
 
 
     def _fetch_all(self, originally=False):
