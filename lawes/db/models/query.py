@@ -78,6 +78,13 @@ class QuerySet(object):
         else:
             return self.__iter__()
 
+
+    def __bool__(self):
+        for item in self._fetch_all():
+            return True
+        return False
+
+
     def filter_comparsion(self, query):
         """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
         :param query: { 'key' : {$gt : 2000} }
