@@ -21,10 +21,19 @@ class Field(RegisterLookupMixin):
             raise DefaultError('This Field needs default')
         if not default is None:
             self.default = default
-        self.value = default
-        # self.check_type()
+        # self.value = default
         self.db_index = db_index
         self.unique = unique
+
+
+    @property
+    def value(self):
+        if callable(self.default):
+            default = self.default()
+        else:
+            default = self.default
+        return default
+
 
     def check_type(self, value=CheckTypeNone()):
         """ 检测子类的类型是否正确
