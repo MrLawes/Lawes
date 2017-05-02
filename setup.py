@@ -2,8 +2,10 @@
 
 from setuptools import setup
 from setuptools import find_packages
+import lawes
 
-VERSION = '1.9.2.10'
+VERSION = [str(version) for version in lawes.VERSION if version != 'alpha']
+VERSION = '.'.join(VERSION)
 
 setup(
     name='Lawes',
