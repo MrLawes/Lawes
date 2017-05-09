@@ -94,6 +94,10 @@ ArrayField
 --------------------------------------
 A list field, the default value for this field is [].
 
+HStoreField
+--------------------------------------
+A dict field, the default value for this field is {}.
+
 Automatic primary key fields
 --------------------------------------
 By default, Lawes gives each model the following field:
