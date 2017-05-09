@@ -94,3 +94,12 @@ class ArrayField(Field):
 
     def __init__(self, *args, **kwargs):
         super(ArrayField, self).__init__(*args, **kwargs)
+
+
+class HStoreField(Field):
+
+    field_type = dict
+    default = {}
+
+    def __init__(self, *args, **kwargs):
+        super(HStoreField, self).__init__(*args, **kwargs)
