@@ -7,6 +7,7 @@ from lawes.core.exceptions import UniqueError
 from lawes.core.exceptions import MongoClientError
 from pymongo.errors import OperationFailure
 from bson.objectid import ObjectId
+from lawes.db.models.query_utils import Q
 
 CONF_RAESE = """
 
@@ -41,9 +42,7 @@ class ConfigQuerySet(object):
 # init the MongoClient
 configqueryset = ConfigQuerySet()
 
-
 class QuerySet(object):
-
 
     def __init__(self, model=None):
 
@@ -60,11 +59,9 @@ class QuerySet(object):
         self.skip = None                            # using for Model.objects.skip(skip)
         self.limit = None                           # using for Model.objects.limit(limit)
 
-
     def __iter__(self):
         for data in self._fetch_all():
             yield data
-
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -109,27 +106,36 @@ class QuerySet(object):
                 c_query[qkey] = query[qkey]
         return c_query
 
-
-    def clone(self):
+    def _clone(self):
         if self.query_flag is False:
             obj = QuerySet(model=self.model)
         else:
             obj = self
         return obj
 
-
-    def filter(self, **query):
-        obj = self.clone()
-        if '_id' in query:
-            query['_id'] = ObjectId(query['_id'])
+    def filter(self, *args, **kwargs):
+        obj = self._clone()
+        if '_id' in kwargs:
+            kwargs['_id'] = ObjectId(kwargs['_id'])
         obj.query_flag = True
-        if query == {}:
+        if kwargs == {}:
             obj.filter_query = {}
         else:
-            query = obj.filter_comparsion(query=query)
-            obj.filter_query.update(query)
+            kwargs = obj.filter_comparsion(query=kwargs)
+            obj.filter_query.update(kwargs)
         return obj
+        # return self._filter_or_exclude(False, *args, **kwargs)
 
+    def exclude(self, *args, **kwargs):
+        return self._filter_or_exclude(True, *args, **kwargs)
+
+    def _filter_or_exclude(self, negate, *args, **kwargs):
+        clone = self._clone()
+        if negate:
+            clone.query.add_q(~Q(*args, **kwargs))
+        else:
+            clone.query.add_q(Q(*args, **kwargs))
+        return clone
 
     def _exec_sql(self):
         multi_data = self._collection.find(self.filter_query)
