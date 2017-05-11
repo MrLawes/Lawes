@@ -8,9 +8,9 @@ from lawes.core.exceptions import MongoClientError
 from pymongo.errors import OperationFailure
 from bson.objectid import ObjectId
 from lawes.db.models.query_utils import Q
+from lawes.db.models import sql
 
 CONF_RAESE = """
-
 The correct formal is:
 from lawes.db import models
 models.setup(conf={'mongo_uri': 'mongodb://127.0.0.1:27017/test', 'db_name': 'testindex'})
@@ -19,11 +19,9 @@ self._mongo: %s , self._db: %s
 
 class ConfigQuerySet(object):
 
-
     def __init__(self):
         self.mongo = None
         self.db_name = ''
-
 
     def _setup(self, conf):
         """ 设置mongodb的连接方式
@@ -44,7 +42,7 @@ configqueryset = ConfigQuerySet()
 
 class QuerySet(object):
 
-    def __init__(self, model=None):
+    def __init__(self, model=None, query=None):
 
         self.query_flag = False                    # set the query_flag to True after filer, order_by , that the methon only return QuerySet
         self.model = model
@@ -54,10 +52,7 @@ class QuerySet(object):
         if not self._mongo or not self._db:
             raise MongoClientError(CONF_RAESE % (str(self._mongo), str(self._db)))
         self._collection = getattr(self._mongo[self._db], self.db_table)
-        self.filter_query = {}                      # using for Model.objects.filter(filter_query)
-        self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
-        self.skip = None                            # using for Model.objects.skip(skip)
-        self.limit = None                           # using for Model.objects.limit(limit)
+        self.query = query or sql.Query(model)
 
     def __iter__(self):
         for data in self._fetch_all():
@@ -75,36 +70,11 @@ class QuerySet(object):
         else:
             return self.__iter__()
 
-
     def __bool__(self):
         return bool(self.count())
 
-
     def count(self):
         return self._exec_sql().count()
-
-
-    def filter_comparsion(self, query):
-        """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
-        :param query: { 'key' : {$gt : 2000} }
-        :return:
-        """
-        c_query = {}
-        match_dict = {
-            '__gt': '$gt',
-            '__gte': '$gte',
-            '__lt': '$lt',
-            '__lte': '$lte',
-            '__ne': '$ne',
-        }
-        for qkey in query:
-            if '__' in  qkey:
-                startwith, endwith = qkey.split('__')
-                if '__' + endwith in match_dict:
-                    c_query[startwith] = { match_dict['__' + endwith ] :query[qkey]}
-            else:
-                c_query[qkey] = query[qkey]
-        return c_query
 
     def _clone(self):
         if self.query_flag is False:
@@ -114,46 +84,30 @@ class QuerySet(object):
         return obj
 
     def filter(self, *args, **kwargs):
-        obj = self._clone()
-        if '_id' in kwargs:
-            kwargs['_id'] = ObjectId(kwargs['_id'])
-        obj.query_flag = True
-        if kwargs == {}:
-            obj.filter_query = {}
-        else:
-            kwargs = obj.filter_comparsion(query=kwargs)
-            obj.filter_query.update(kwargs)
-        return obj
-        # return self._filter_or_exclude(False, *args, **kwargs)
+        return self._filter_or_exclude(False, *args, **kwargs)
 
     def exclude(self, *args, **kwargs):
         return self._filter_or_exclude(True, *args, **kwargs)
 
     def _filter_or_exclude(self, negate, *args, **kwargs):
+        if args and kwargs:
+            return self
         clone = self._clone()
+        clone.query_flag = True
         if negate:
-            clone.query.add_q(~Q(*args, **kwargs))
+            query = ~Q(*args, **kwargs) # TODO This has not QAed yet
         else:
-            clone.query.add_q(Q(*args, **kwargs))
+            query = Q(*args, **kwargs)
+        for arg in args:
+            query = arg & query
+        clone.query.add_q(query)
         return clone
-
-    def _exec_sql(self):
-        multi_data = self._collection.find(self.filter_query)
-        # order by query
-        if self.order_by_query:
-            multi_data = multi_data.sort(*self.order_by_query)
-
-        if not self.skip is None:
-            multi_data = multi_data.skip(self.skip)
-        if not self.limit is None:
-            multi_data = multi_data.limit(self.limit)
-        return multi_data
 
     def _fetch_all(self, originally=False):
         """ run the sql actually
         :return:
         """
-        multi_data = self._exec_sql()
+        multi_data = self.query.execute_sql(collection=self._collection)
         if originally is True:
             for data in multi_data:
                 yield data
@@ -163,14 +117,12 @@ class QuerySet(object):
                 obj = obj.to_obj(data=data)
                 yield obj
 
-
     def _insert(self, data):
         """
         Inserts a new record for the given model. This provides an interface to
         the InsertQuery class and is how Model.save() is implemented.
         """
         return self._collection.insert(data)
-
 
     def _update(self, data):
         """
@@ -179,7 +131,6 @@ class QuerySet(object):
         """
         mongodb_id = data.pop('_id')
         return self._collection.update({'_id': mongodb_id}, {'$set': data}, upsert=True)
-
 
     def init_index(self):
         """  create the index_1
@@ -204,14 +155,15 @@ class QuerySet(object):
                     self._collection.drop_index(attr + '_1')
                     self._collection.ensure_index(attr, unique=True)
 
-
     def get(self, *args, **kwargs):
         """
         Performs the query and returns a single object matching the given
         keyword arguments.
         """
-        self.filter_query.update(kwargs)
-        data = self._collection.find(self.filter_query)
+        # self.filter_query.update(kwargs)
+        # data = self._collection.find(self.filter_query)
+        self = self._filter_or_exclude(False, *args, **kwargs)
+        data = self.query.execute_sql(collection=self._collection)
         num = data.count()
         if num == 1:
             obj = self.model()
@@ -220,13 +172,12 @@ class QuerySet(object):
         if not num:
             raise DoesNotExist(
                 "%s matching query does not exist." %
-                self.filter_query
+                self.query.as_sql()
             )
         raise MultipleObjectsReturned(
             "findone  %s returned more than one -- it returned %s!" %
-            (self.filter_query, num)
+            (self.query.as_sql(), num)
         )
-
 
     def get_or_create(self, **kwargs):
         """
@@ -247,8 +198,10 @@ class QuerySet(object):
         if need_index_set:
             raise UniqueError('UNIQUE constraint failed: %s: %s, please do collection.ensure_index: Model.objects.init_index()' % (
             self.db_table, str(need_index_set)))
-        self.filter_query.update(kwargs)
-        data = self._collection.find(self.filter_query)
+        # self.filter_query.update(kwargs)
+        # data = self._collection.find(self.filter_query)
+        self = self._filter_or_exclude(False, *args, **kwargs)
+        data = self.query.execute_sql(collection=self._collection)
         num = data.count()
         if num == 1:
             to_obj_data = data[0]
@@ -258,7 +211,7 @@ class QuerySet(object):
         else:
             raise MultipleObjectsReturned(
                 "findone  %s returned more than one -- it returned %s!" %
-                (self.filter_query, num)
+                (self.query.as_sql(), num)
             )
 
         obj = self.model()
@@ -266,7 +219,6 @@ class QuerySet(object):
         if not num:
             obj.save()
         return obj, created
-
 
     def order_by(self, *field_names):
         field_names = field_names[0]
@@ -278,7 +230,6 @@ class QuerySet(object):
         self.order_by_query = (field_names, order_index)
         return self
 
-
     def delete(self):
         """
         Deletes the records in the current QuerySet.
@@ -286,8 +237,6 @@ class QuerySet(object):
         for data in self._fetch_all(originally=True):
             self._remove(_id=str(data['_id']))
 
-
     def _remove(self, _id):
         remove_dict = {'_id': ObjectId(_id)}
         self._collection.remove(remove_dict)
-

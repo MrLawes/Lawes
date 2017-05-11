@@ -5,20 +5,19 @@ class Node(object):
 
     default = 'DEFAULT'
 
-    def __init__(self, children=None, connector=None, negated=False, values=[]):
-        self.children = children[:] if children else []         # [<Q: (AND: ('phone', '1'), ('name', 'lawes'))>]
-        self.connector = connector or self.default               # AND
-        self.negated = negated
-        self.values = values[:] if values else []               # [('phone', '1'), ('name', 'lawes')]
+    def __init__(self, connector=None, values=[]):
+        self.q_left = None
+        self.q_right = None
+        self.connector = connector or self.default
+        self.values = values[:] if values else []
 
     def __str__(self):
-        return '<%s: %s, %s>' % (self.connector, self.values, ', '.join(str(c) for c in
-                self.children))
-
-    def add(self, other):
-        if other in self.children:
-            return other
-        if other.connector == self.connector:
-            self.values.extend(other.values)
+        if self.q_left and self.q_left:
+            return '(%s %s %s)' % (str(self.q_left), self.connector, str(self.q_right))
         else:
-            self.children.append(other)
+            return '( %s, %s)' % (self.connector, self.values)
+
+    def add(self, q_left, q_right, conn_type):
+        self.q_left = q_left
+        self.q_right = q_right
+        self.connector = conn_type
