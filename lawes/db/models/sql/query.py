@@ -8,9 +8,9 @@ class Query(object):
     def __init__(self, model):
         self.model = model
         self.q_object = None
-        self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)# TODO move to sql query
-        self.skip = None                            # using for Model.objects.skip(skip)# TODO move to sql query
-        self.limit = None                           # using for Model.objects.limit(limit)# TODO move to sql query
+        self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
+        self.skip = None                            # using for Model.objects.skip(skip)#
+        self.limit = None                           # using for Model.objects.limit(limit)#
 
     def add_q(self, q_object):
         if self.q_object is None:

@@ -60,10 +60,11 @@ class QuerySet(object):
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            self.limit = item
+            self.query.limit = item
+            self.query.skip = item
         elif isinstance(item, slice):
-            self.skip = item.start
-            self.limit = item.stop - item.start
+            self.query.skip = item.start
+            self.query.limit = item.stop - item.start
         if isinstance(item, int):
             for iter_item in self.__iter__():
                 return iter_item
@@ -227,7 +228,7 @@ class QuerySet(object):
             order_index = -1
         else:
             order_index = 1
-        self.order_by_query = (field_names, order_index)
+        self.query.order_by_query = (field_names, order_index)
         return self
 
     def delete(self):
