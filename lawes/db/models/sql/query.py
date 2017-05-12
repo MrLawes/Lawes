@@ -19,7 +19,6 @@ class Query(object):
             self.q_object = self.q_object & q_object
 
     def filter_comparsion(self, query):
-
         """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
         >>> query = {"1__gte": 1,"2__gte": 2,"3__lt": 3,"4__lte": 4,"5__ne": 5, '6': 1}
         >>> Query(None).filter_comparsion(query=query)
@@ -46,6 +45,21 @@ class Query(object):
         return c_query
 
     def _as_sql(self, q_object):
+        """
+        >>> from lawes.db.models import Q
+        >>> query = Q(name='lawes')
+        >>> obj = Query(None)
+        >>> obj._as_sql(q_object=query)
+        {'name': 'lawes'}
+        >>> query = query & Q(sex=1)
+        >>> obj._as_sql(q_object=query)
+        {'$and': [{'name': 'lawes'}, {'sex': 1}]}
+        >>> query_other = Q(address='lawes street1') | Q(age__gt=2)
+        >>> obj._as_sql(q_object=query_other)
+        {'$or': [{'address': 'lawes street1'}, {'age': {'$gt': 2}}]}
+        >>> obj._as_sql(q_object=query & query_other)
+        {'$and': [{'$and': [{'name': 'lawes'}, {'sex': 1}]}, {'$or': [{'address': 'lawes street1'}, {'age': {'$gt': 2}}]}]}
+        """
         filter_query = {}
         if q_object.q_right is None and q_object.q_left is None:
             if q_object.values:
