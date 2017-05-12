@@ -123,7 +123,7 @@ class QuerySet(object):
         Inserts a new record for the given model. This provides an interface to
         the InsertQuery class and is how Model.save() is implemented.
         """
-        return self._collection.insert(data)
+        return self._collection.insert_one(data)
 
     def _update(self, data):
         """
@@ -240,4 +240,4 @@ class QuerySet(object):
 
     def _remove(self, _id):
         remove_dict = {'_id': ObjectId(_id)}
-        self._collection.remove(remove_dict)
+        self._collection.delete_many(remove_dict)

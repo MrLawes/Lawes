@@ -1,11 +1,11 @@
 
 import os
 import sys
+import doctest
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_HOST = BASE_DIR.split('\\')[-1]
 sys.path.append(BASE_DIR)
-import doctest
 
 def all_doctest():
     for root, dirs, files in os.walk(BASE_DIR):
@@ -17,5 +17,3 @@ def all_doctest():
                 importpy = __import__(import_name, globals(), locals(), name, 0)
                 doctest.testmod(importpy)
 
-if __name__ == '__main__':
-    all_doctest()
