@@ -87,6 +87,7 @@ class BooleanField(Field):
     def __init__(self, *args, **kwargs):
         super(BooleanField, self).__init__(*args, **kwargs)
 
+
 class ArrayField(Field):
 
     field_type = list
@@ -103,3 +104,10 @@ class HStoreField(Field):
 
     def __init__(self, *args, **kwargs):
         super(HStoreField, self).__init__(*args, **kwargs)
+
+
+class AutoField(Field):
+
+    field_type = int
+    default_can_set_null = True
+    default = None

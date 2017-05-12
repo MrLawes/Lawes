@@ -9,6 +9,8 @@ from pymongo.errors import OperationFailure
 from bson.objectid import ObjectId
 from lawes.db.models.query_utils import Q
 from lawes.db.models import sql
+from lawes.db.models.fields import AutoField
+import copy
 
 CONF_RAESE = """
 The correct formal is:
@@ -201,7 +203,7 @@ class QuerySet(object):
             self.db_table, str(need_index_set)))
         # self.filter_query.update(kwargs)
         # data = self._collection.find(self.filter_query)
-        self = self._filter_or_exclude(False, *args, **kwargs)
+        self = self._filter_or_exclude(False, **kwargs)
         data = self.query.execute_sql(collection=self._collection)
         num = data.count()
         if num == 1:
@@ -241,3 +243,24 @@ class QuerySet(object):
     def _remove(self, _id):
         remove_dict = {'_id': ObjectId(_id)}
         self._collection.delete_many(remove_dict)
+
+    def get_auto_collection(self, field_name):
+        auto_collection = getattr(self._mongo[self._db], self.db_table + '_auto_%s' % (field_name))
+        return auto_collection
+
+    def save_auto_field(self, local_fields=[]):
+        data = {}
+        local_fields = copy.deepcopy(local_fields)
+        for field_name in local_fields:
+            if isinstance(local_fields[field_name], AutoField):
+                auto_collection = self.get_auto_collection(field_name=field_name)
+                auto_infos = auto_collection.find_one_and_update(filter={'key': field_name}, update={'$inc': {'autoid': 1}},new=True, upsert=True)
+                data[field_name] = auto_infos['autoid']
+        return data
+
+    def clean_auto_field(self, local_fields=[]):
+        local_fields = copy.deepcopy(local_fields)
+        for field_name in local_fields:
+            if isinstance(local_fields[field_name], AutoField):
+                auto_collection = self.get_auto_collection(field_name=field_name)
+                auto_collection.delete_many({})

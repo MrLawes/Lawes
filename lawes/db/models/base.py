@@ -7,6 +7,7 @@ import json
 import datetime
 import copy
 from bson.objectid import ObjectId
+from pymongo.results import InsertOneResult
 
 class ModelBase(type):
 
@@ -59,20 +60,19 @@ class Model(six.with_metaclass(ModelBase)):
 
         super(Model, self).__init__()
 
-
     def __setattr__(self, key, value):
         super(Model, self).__setattr__(key, value)
         if hasattr(self, '_id'):
             if not key in self.save_fields:
                 self.save_fields.append(key)
 
-
     def save(self):
+        auto_results = self.objects.save_auto_field(local_fields=self._meta.local_fields)
+        for auto_field in auto_results:
+            setattr(self, auto_field, auto_results[auto_field])
         self._save_table()
 
-
     def _save_table(self):
-
         pk_val = self._get_pk_val()
         # pk_set is true for updating, pk_set is true for inserting
         pk_set = pk_val is not None
@@ -86,7 +86,6 @@ class Model(six.with_metaclass(ModelBase)):
         else:
             result = self._do_insert(data=data)
             setattr(self, self.pk_attname, result)
-
 
     def _get_pk_val(self):
         """ get _id: None: INSERT; not None: UPDATE
@@ -102,7 +101,6 @@ class Model(six.with_metaclass(ModelBase)):
         """ 向 mongodb 插入数据
         """
         return cls.objects._insert(data=data)
-
 
     @classmethod
     def _do_update(cls, data):
@@ -132,12 +130,13 @@ class Model(six.with_metaclass(ModelBase)):
 
     def to_dict_format(self):
         result = copy.deepcopy(self.to_dict())
-        to_str_list = (datetime.datetime, ObjectId)
+        to_str_list = (datetime.datetime, ObjectId,)
         for r in result:
+            if isinstance(result[r], InsertOneResult):
+                result[r] = result[r].inserted_id
             for to_obj_type in to_str_list:
                 if isinstance(result[r], to_obj_type):
                     result[r] = str(result[r])
-
         result = json.dumps(result, indent=4, ensure_ascii=False, sort_keys=True)
         return result
 
@@ -155,6 +154,9 @@ class Model(six.with_metaclass(ModelBase)):
             self._id = data['_id']
         return self
 
-
     def delete(self):
         return self.objects._remove(_id=self._id)
+
+    def clean_auto_field(self):
+        self.objects.clean_auto_field(local_fields=self._meta.local_fields)
+
