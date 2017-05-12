@@ -19,9 +19,11 @@ class Query(object):
             self.q_object = self.q_object & q_object
 
     def filter_comparsion(self, query):
+
         """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
-        :param query: { 'key' : {$gt : 2000} }
-        :return:
+        >>> query = {"1__gte": 1,"2__gte": 2,"3__lt": 3,"4__lte": 4,"5__ne": 5, '6': 1}
+        >>> Query(None).filter_comparsion(query=query)
+        {'1': {'$gte': 1}, '2': {'$gte': 2}, '3': {'$lt': 3}, '4': {'$lte': 4}, '5': {'$ne': 5}, '6': 1}
         """
         c_query = {}
         match_dict = {
@@ -34,8 +36,11 @@ class Query(object):
         for qkey in query:
             if '__' in  qkey:
                 startwith, endwith = qkey.split('__')
-                if '__' + endwith in match_dict:
-                    c_query[startwith] = { match_dict['__' + endwith ] :query[qkey]}
+                endwith = '__' + endwith
+                if endwith in match_dict:
+                    c_query[startwith] = { match_dict[endwith] :query[qkey]}
+                else:
+                    raise TypeError('Can not switch %s' % (endwith))
             else:
                 c_query[qkey] = query[qkey]
         return c_query
@@ -51,8 +56,6 @@ class Query(object):
 
     def as_sql(self):
         filter_query = self._as_sql(self.q_object)
-        import json
-        print('filter_query:', json.dumps(filter_query, indent=4))# TODO delete
         return filter_query
 
     def execute_sql(self, collection):
