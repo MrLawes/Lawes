@@ -1,6 +1,4 @@
 
-from django.db.models.query_utils import Q
-
 class Query(object):
     """
     A single SQL query.

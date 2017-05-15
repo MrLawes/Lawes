@@ -124,16 +124,16 @@ class Model(six.with_metaclass(ModelBase)):
                 result[field] = value
 
         if hasattr(self, '_id'):
-            result['_id'] = self._id
-
+            if isinstance(self._id, InsertOneResult):
+                result['_id'] = self._id.inserted_id
+            else:
+                result['_id'] = self._id
         return result
 
     def to_dict_format(self):
         result = copy.deepcopy(self.to_dict())
         to_str_list = (datetime.datetime, ObjectId,)
         for r in result:
-            if isinstance(result[r], InsertOneResult):
-                result[r] = result[r].inserted_id
             for to_obj_type in to_str_list:
                 if isinstance(result[r], to_obj_type):
                     result[r] = str(result[r])
