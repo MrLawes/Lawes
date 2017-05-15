@@ -76,6 +76,9 @@ class QuerySet(object):
     def __bool__(self):
         return bool(self.count())
 
+    def __len__(self):
+        return self.count()
+
     def count(self):
         return self._exec_sql().count()
 
