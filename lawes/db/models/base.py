@@ -29,7 +29,7 @@ class ModelBase(type):
             meta = getattr(new_class, 'Meta', None)
         # db_table is the collection name in mongodb
         db_table = new_class.__module__.split('.')[-1] + '_' + new_class.__name__.lower()
-        kwargs = {"db_table": db_table}
+        kwargs = {"db_table": db_table, 'module_name': new_class.__name__.lower()}
         new_class._meta = Options(meta, **kwargs)
 
         # set the local_fields at Options: {'name': lawes.db.models.fields.CharField}

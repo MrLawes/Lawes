@@ -18,27 +18,27 @@ class Query(object):
 
     def filter_comparsion(self, query):
         """ if found __gt, __gte, __lt, __lte, __ne in query, change to "$gt", "$gte", "$lt", "$lte", "$ne"
-        >>> query = {"1__gte": 1,"2__gte": 2,"3__lt": 3,"4__lte": 4,"5__ne": 5, '6': 1}
+        >>> query = {"1__gt": 1,"2__gte": 2,"3__lt": 3,"4__lte": 4,"5__ne": 5, '6': 6, '7_text__search': '77' }
         >>> Query(None).filter_comparsion(query=query)
-        {'1': {'$gte': 1}, '2': {'$gte': 2}, '3': {'$lt': 3}, '4': {'$lte': 4}, '5': {'$ne': 5}, '6': 1}
+        {'1': {'$gt': 1}, '2': {'$gte': 2}, '3': {'$lt': 3}, '4': {'$lte': 4}, '5': {'$ne': 5}, '6': 6, '7': {'$regex': '7.*7', '$options': 'si'}}
         """
         c_query = {}
-        match_dict = {
-            '__gt': '$gt',
-            '__gte': '$gte',
-            '__lt': '$lt',
-            '__lte': '$lte',
-            '__ne': '$ne',
-        }
+        match_tuple = ( '__gt', '__gte', '__lt', '__lte', '__ne', )
         for qkey in query:
-            if '__' in  qkey:
-                startwith, endwith = qkey.split('__')
-                endwith = '__' + endwith
-                if endwith in match_dict:
-                    c_query[startwith] = { match_dict[endwith] :query[qkey]}
-                else:
-                    raise TypeError('Can not switch %s' % (endwith))
-            else:
+            origin = True
+            for match_key in match_tuple:
+                if qkey.endswith(match_key):
+                    match_key_to = match_key.replace('__', '$')
+                    startpart, endpart = qkey.split(match_key)
+                    c_query[startpart] = { match_key_to: query[qkey] }
+                    origin = False
+            if qkey.endswith('_text__search'):
+                startpart, endpart = qkey.split('_text__search')
+                if not isinstance(query[qkey], str):
+                    raise TypeError('Can not _text__search with %s, only string' % ( type(query[qkey] ) ) )
+                c_query[startpart] = {'$regex': '.*'.join(query[qkey]), '$options': 'si'}
+                origin = False
+            if origin is True:
                 c_query[qkey] = query[qkey]
         return c_query
 

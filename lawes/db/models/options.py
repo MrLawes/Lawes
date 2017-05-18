@@ -13,12 +13,13 @@ DEFAULT_NAMES = ('verbose_name', 'verbose_name_plural', 'db_table', 'ordering',
 class Options(object):
     """ for the model to set default
     """
-    def __init__(self, meta, db_table=None):
+    def __init__(self, meta, db_table=None, module_name=''):
 
         self.db_table = db_table
         self.local_fields = {} # {'name': lawes.db.models.fields.CharField }
         self.db_indexs = {}
         self.meta = meta
+        self.module_name = ''
         # set attribute for Option from Model's Meta
         if meta:
             meta_attrs = self.meta.__dict__.copy()

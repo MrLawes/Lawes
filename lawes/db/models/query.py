@@ -65,8 +65,9 @@ class QuerySet(object):
             self.query.limit = item
             self.query.skip = item
         elif isinstance(item, slice):
-            self.query.skip = item.start
-            self.query.limit = item.stop - item.start
+            start = item.start or 0
+            self.query.skip = start
+            self.query.limit = item.stop - start
         if isinstance(item, int):
             for iter_item in self.__iter__():
                 return iter_item
@@ -80,7 +81,7 @@ class QuerySet(object):
         return self.count()
 
     def count(self):
-        return self._exec_sql().count()
+        return self.query.execute_sql(collection=self._collection).count()
 
     def _clone(self):
         if self.query_flag is False:
