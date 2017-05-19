@@ -1,6 +1,7 @@
 
 import unittest
 from lawes.test import Fruit
+from lawes.db.models import Q
 
 class TestBdModelsBase(unittest.TestCase):
 
@@ -20,4 +21,3 @@ class TestBdModelsBase(unittest.TestCase):
             self.fail('delete does not work!')
 
     # TODO all of them
-
