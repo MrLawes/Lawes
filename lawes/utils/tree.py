@@ -17,7 +17,24 @@ class Node(object):
         else:
             return "( '%s', %s)" % (self.connector, self.values)
 
+    def __bool__(self):
+        if not self.q_left and not self.q_right and not self.values:
+            return False
+        return True
+
     def add(self, q_left, q_right, conn_type):
-        self.q_left = q_left
-        self.q_right = q_right
-        self.connector = conn_type
+        if q_left and q_right:
+            self.q_left = q_left
+            self.q_right = q_right
+            self.connector = conn_type
+        elif not q_left and not q_right:
+            pass
+        else:
+            if conn_type == self.AND:
+                self = q_left or q_right
+            elif conn_type == self.OR:
+                if not q_left:
+                    self = q_left
+                else:
+                    self = q_right
+        return self

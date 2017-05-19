@@ -20,7 +20,7 @@ class Q(tree.Node):
         if not isinstance(other, Q):
             raise TypeError(other)
         obj = type(self)()
-        obj.add(self, other, conn)
+        obj = obj.add(self, other, conn)
         return obj
 
     def __or__(self, other):

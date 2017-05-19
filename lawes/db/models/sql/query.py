@@ -5,13 +5,17 @@ class Query(object):
     """
     def __init__(self, model):
         self.model = model
-        self.q_object = None
+        self.q_object = None                        # lawes.db.models import Q
         self.order_by_query = ()                    # using for Model.objects.order_by(filter_query)
         self.skip = None                            # using for Model.objects.skip(skip)#
         self.limit = None                           # using for Model.objects.limit(limit)#
 
     def add_q(self, q_object):
-        if self.q_object is None:
+        """
+        :param q_object: lawes.db.models import Q
+        :return:
+        """
+        if not self.q_object:
             self.q_object = q_object
         else:
             self.q_object = self.q_object & q_object

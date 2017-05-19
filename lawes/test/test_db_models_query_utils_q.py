@@ -17,22 +17,30 @@ class TestBdModelsQueryUtilsQ(unittest.TestCase):
             test_obj.delete()
 
     def test_q(self):
-        query = Q(name='lawes')
-        obj = Query(None)
-        self.assertEqual(obj._as_sql(q_object=query), {'name': 'lawes'})
-        query = query & Q(sex=1)
-        obj._as_sql(q_object=query)
+        query = Q()
+        result = Fruit.objects.filter(query)
+        self.assertEqual(result.query.as_sql(), {})
+        query = query & Q(name='lawes')
+        result = Fruit.objects.filter(query)
+        self.assertEqual(result.query.as_sql(), {'name': 'lawes'})
+        query = query | Q()
+        result = Fruit.objects.filter(query)
+        self.assertEqual(result.query.as_sql(), {})
+        query = query & Q(name='lawes') & Q(sex=1)
+        result = Fruit.objects.filter(query)
         query_expected = {'$and': [{'name': 'lawes'}, {'sex': 1}]}
-        self.assertEqual(obj._as_sql(q_object=query), query_expected)
+        self.assertEqual(result.query.as_sql(), query_expected)
         query_other = Q(address='lawes street1') | Q(age__gt=2)
-        obj._as_sql(q_object=query_other)
+        result = Fruit.objects.filter(query_other)
         query_other_expected = {'$or': [{'address': 'lawes street1'}, {'age': {'$gt': 2}}]}
-        self.assertEqual(obj._as_sql(q_object=query_other), query_other_expected)
+        self.assertEqual(result.query.as_sql(), query_other_expected)
         query_combine = query & query_other
-        self.assertEqual(obj._as_sql(q_object=query_combine), {'$and': [query_expected, query_other_expected]})
+        result = Fruit.objects.filter(query_combine)
+        self.assertEqual(result.query.as_sql(), {'$and': [query_expected, query_other_expected]})
         query = Q(name_text__search='name')
         query = query | Q(address_text__search='address')
         query_result = {'$or': [{'name': {'$regex': 'n.*a.*m.*e', '$options': 'si'}}, {'address': {'$regex': 'a.*d.*d.*r.*e.*s.*s', '$options': 'si'}}]}
-        self.assertEqual(obj._as_sql(q_object=query), query_result)
+        result = Fruit.objects.filter(query)
+        self.assertEqual(result.query.as_sql(), query_result)
 
     # TODO all of them
