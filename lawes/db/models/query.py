@@ -154,13 +154,13 @@ class QuerySet(object):
             unique = db_indexs[attr].get('unique', False)
             if not attr + '_1' in old_index:
                 if unique is True:
-                    self._collection.ensure_index(attr, unique=True)
+                    self._collection.ensure_index(attr,unique=True,background=True)
                 else:
-                    self._collection.ensure_index(attr)
+                    self._collection.ensure_index(attr,background=True)
             elif unique is True:
                 if not 'unique' in old_index[attr + '_1']:
                     self._collection.drop_index(attr + '_1')
-                    self._collection.ensure_index(attr, unique=True)
+                    self._collection.ensure_index(attr,unique=True,background=True)
 
     def get(self, *args, **kwargs):
         """
@@ -220,7 +220,6 @@ class QuerySet(object):
                 "findone  %s returned more than one -- it returned %s!" %
                 (self.query.as_sql(), num)
             )
-
         obj = self.model()
         obj = obj.to_obj(data=to_obj_data)
         if not num:
