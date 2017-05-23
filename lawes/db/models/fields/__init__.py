@@ -25,7 +25,6 @@ class Field(RegisterLookupMixin):
         self.db_index = db_index
         self.unique = unique
 
-
     @property
     def value(self):
         if callable(self.default):
@@ -34,14 +33,12 @@ class Field(RegisterLookupMixin):
             default = self.default
         return default
 
-
     def check_type(self, value=CheckTypeNone()):
         """ 检测子类的类型是否正确
         """
         check_value = value if not isinstance(value, CheckTypeNone) else self.value
         if self.default_can_set_null is True and check_value is None:
             return True
-
         if not isinstance(check_value, self.field_type):
             raise ValidationError(message=self.error_message,params={'value': check_value, 'value_type': str(self.field_type)},)
         return True

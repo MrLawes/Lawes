@@ -130,13 +130,17 @@ class Model(six.with_metaclass(ModelBase)):
                 result['_id'] = self._id
         return result
 
-    def to_dict_format(self):
+    def to_json(self):
         result = copy.deepcopy(self.to_dict())
         to_str_list = (datetime.datetime, ObjectId,)
         for r in result:
             for to_obj_type in to_str_list:
                 if isinstance(result[r], to_obj_type):
                     result[r] = str(result[r])
+        return result
+
+    def to_dict_format(self):
+        result = self.to_json()
         result = json.dumps(result, indent=4, ensure_ascii=False, sort_keys=True)
         return result
 
