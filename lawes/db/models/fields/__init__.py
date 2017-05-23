@@ -108,3 +108,9 @@ class AutoField(Field):
     field_type = int
     default_can_set_null = True
     default = None
+    start = None
+
+    def __init__(self, *args, **kwargs):
+        if 'start' in kwargs:
+            self.start = kwargs.pop('start')
+        super(AutoField, self).__init__(*args, **kwargs)

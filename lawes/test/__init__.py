@@ -11,3 +11,4 @@ class Fruit(models.Model):
     name = models.CharField(default='')
     color = models.CharField(default='')
     sid = models.AutoField()
+    nid = models.AutoField(start=1000000000)

@@ -258,7 +258,12 @@ class QuerySet(object):
         local_fields = copy.deepcopy(local_fields)
         for field_name in local_fields:
             auto_collection = self.get_auto_collection(field_name=field_name)
-            auto_infos = auto_collection.find_one_and_update(filter={'key': field_name}, update={'$inc': {'autoid': 1}},new=True, upsert=True)
+            start = local_fields[field_name].start
+            if not start is None:
+                filter_dict = { 'key': field_name , 'autoid': {'$lt': start} }
+                update_dict = { '$set' :{'autoid': start } }
+                auto_collection.update_one(filter_dict, update_dict, upsert=True)
+            auto_infos = auto_collection.find_one_and_update(filter={'key': field_name}, update={'$inc': {'autoid': 1}}, new=True, upsert=True)
             data[field_name] = auto_infos['autoid']
         return data
 

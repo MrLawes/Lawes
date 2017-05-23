@@ -19,6 +19,7 @@ class TestBdModelsFields(unittest.TestCase):
     def test_autofield(self):
         fruit = Fruit()
         fruit.save()
+        self.assertEqual(fruit.nid, 1000000001)
         fruit.save()
         self.assertEqual(fruit.sid, 1)
 
