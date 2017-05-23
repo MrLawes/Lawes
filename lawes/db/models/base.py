@@ -8,6 +8,7 @@ import datetime
 import copy
 from bson.objectid import ObjectId
 from pymongo.results import InsertOneResult
+from lawes.db.models.fields import AutoField
 
 class ModelBase(type):
 
@@ -48,16 +49,11 @@ class Model(six.with_metaclass(ModelBase)):
     pk_attname = '_id'
     save_fields = []
 
-
     def __init__(self, *args, **kwargs):
         # set the real value to the model
         for obj_name in self._meta.local_fields:
             obj = self._meta.local_fields[obj_name]
             setattr(self, obj_name, obj.value)
-
-        # creat the index and unique in db
-        # self.objects.init_index(db_indexs = self._meta.db_indexs)
-
         super(Model, self).__init__()
 
     def __setattr__(self, key, value):
@@ -67,7 +63,12 @@ class Model(six.with_metaclass(ModelBase)):
                 self.save_fields.append(key)
 
     def save(self):
-        auto_results = self.objects.save_auto_field(local_fields=self._meta.local_fields)
+        local_fields = {}
+        for field in self._meta.local_fields:
+            if isinstance(self._meta.local_fields[field], AutoField):
+                if getattr(self, field) is None:
+                    local_fields[field] = self._meta.local_fields[field]
+        auto_results = self.objects.save_auto_field(local_fields=local_fields)
         for auto_field in auto_results:
             setattr(self, auto_field, auto_results[auto_field])
         self._save_table()
@@ -95,7 +96,6 @@ class Model(six.with_metaclass(ModelBase)):
         else:
             return getattr(self, self.pk_attname)
 
-
     @classmethod
     def _do_insert(cls, data):
         """ 向 mongodb 插入数据
@@ -107,7 +107,6 @@ class Model(six.with_metaclass(ModelBase)):
         """ doing update in mongodb
         """
         return cls.objects._update(data=data)
-
 
     def to_dict(self, fields=''):
         """ if the values of the fields is 'save_fields' , only change the fields parts

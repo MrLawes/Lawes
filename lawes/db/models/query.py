@@ -137,6 +137,8 @@ class QuerySet(object):
         the InsertQuery class and is how Model.save() is implemented.
         """
         mongodb_id = data.pop('_id')
+        if not data:
+            return None
         return self._collection.update({'_id': mongodb_id}, {'$set': data}, upsert=True)
 
     def init_index(self):
@@ -255,10 +257,9 @@ class QuerySet(object):
         data = {}
         local_fields = copy.deepcopy(local_fields)
         for field_name in local_fields:
-            if isinstance(local_fields[field_name], AutoField):
-                auto_collection = self.get_auto_collection(field_name=field_name)
-                auto_infos = auto_collection.find_one_and_update(filter={'key': field_name}, update={'$inc': {'autoid': 1}},new=True, upsert=True)
-                data[field_name] = auto_infos['autoid']
+            auto_collection = self.get_auto_collection(field_name=field_name)
+            auto_infos = auto_collection.find_one_and_update(filter={'key': field_name}, update={'$inc': {'autoid': 1}},new=True, upsert=True)
+            data[field_name] = auto_infos['autoid']
         return data
 
     def clean_auto_field(self, local_fields=[]):
