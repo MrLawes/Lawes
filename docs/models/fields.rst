@@ -94,6 +94,14 @@ ArrayField
 --------------------------------------
 A list field, the default value for this field is [].
 
+AutoField
+--------------------------------------
+An IntegerField that automatically increments according to available IDs.
+
+start:
+    AutoField(start=100)
+    It will return 101
+
 HStoreField
 --------------------------------------
 A dict field, the default value for this field is {}.
