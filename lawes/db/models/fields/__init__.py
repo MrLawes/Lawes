@@ -4,6 +4,7 @@ from lawes.db.models.lookups import RegisterLookupMixin
 import datetime
 from lawes.core.exceptions import ValidationError
 from lawes.core.exceptions import DefaultError
+from lawes.conf import settings
 
 class CheckTypeNone(object):
     pass
@@ -114,3 +115,14 @@ class AutoField(Field):
         if 'start' in kwargs:
             self.start = kwargs.pop('start')
         super(AutoField, self).__init__(*args, **kwargs)
+
+class FileField(Field):
+
+    field_type = str
+    default = ''
+    upload_to = ''
+
+    def __init__(self, *args, **kwargs):
+        if 'upload_to' in kwargs:
+           self.upload_to = kwargs.pop('upload_to')
+        super(FileField, self).__init__(*args, **kwargs)

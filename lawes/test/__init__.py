@@ -1,8 +1,9 @@
 
 from lawes.db import models
+import os
+from lawes.conf import ENVIRONMENT_VARIABLE
+os.environ.setdefault(ENVIRONMENT_VARIABLE, 'settings')
 
-conf_dict = {'MONGO_URI': 'mongodb://127.0.0.1:27017/', 'DB_NAME': 'testdb'}
-models.setup(conf=conf_dict)
 
 class Fruit(models.Model):
     class Meta:

@@ -9,6 +9,7 @@ import copy
 from bson.objectid import ObjectId
 from pymongo.results import InsertOneResult
 from lawes.db.models.fields import AutoField
+from lawes.db.models.fields import FileField
 
 class ModelBase(type):
 
@@ -145,14 +146,19 @@ class Model(six.with_metaclass(ModelBase)):
 
     def to_obj(self, data={}):
 
+        field_value_dict = {}
         for field in data:
-            setattr(self, field, data[field])
+            field_value_dict[field] = value=data[field]
         for field in self._meta.local_fields:
             if field in data:
-                value = data[field]
+                continue
             else:
                 value = self._meta.local_fields[field].value
-            setattr(self, field, value)
+                field_value_dict[field] = value
+
+        for field in field_value_dict:
+            setattr(self, field, field_value_dict[field])
+
         if '_id' in data:
             self._id = data['_id']
         return self
