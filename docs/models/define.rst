@@ -36,3 +36,15 @@ A helper function to show all of values for key with 'indent=4' dumped dictionar
             "online": true
          }
 
+to_json()
+--------------------------------------
+A helper function to show all of values for key with dictionary.
+It doesn't include model type like: datatime. etc.
+
+.. code-block:: python
+
+    >>> from model import Fruit
+    >>> fruit = Fruit()
+    >>> print(fruit.to_json())
+    >>> {'num': 88, 'name': 'mongo', 'price': 10.5, 'colors': ['green', 'yellow'], 'buy_date': '2017-04-27 09:38:01.919688', 'online': True}
+
