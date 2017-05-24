@@ -9,5 +9,6 @@ A model is the single, definitive source of information about your data. It cont
 
     fields
     queryset
-    define
     filter
+    define
+
