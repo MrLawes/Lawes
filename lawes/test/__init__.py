@@ -1,7 +1,7 @@
 
 from lawes.db import models
 
-conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'db_name': 'testdb'}
+conf_dict = {'MONGO_URI': 'mongodb://127.0.0.1:27017/', 'DB_NAME': 'testdb'}
 models.setup(conf=conf_dict)
 
 class Fruit(models.Model):

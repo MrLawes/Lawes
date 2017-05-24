@@ -1,7 +1,6 @@
 
 import unittest
 from lawes.test import Fruit
-from lawes.db.models.fields import AutoField
 
 class TestBdModelsFields(unittest.TestCase):
 

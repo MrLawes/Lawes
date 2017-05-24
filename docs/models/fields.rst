@@ -22,7 +22,7 @@ Creating a connection in test.py and running it with 'python test.py':
 .. code-block:: python
 
     >>> from lawes.db import models
-    >>> conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'db_name': 'testindex'}
+    >>> conf_dict = {'MONGO_URI': 'mongodb://127.0.0.1:27017/', 'DB_NAME': 'testindex'}
     >>> models.setup(conf=conf_dict)
     >>> from model import Fruit
     >>> if __name__ == '__main__':
@@ -146,5 +146,4 @@ Finding the data in MongoDB:
     $ mongo --port 27017
     > use testindex
      > db.my_fruit.find()
-
 

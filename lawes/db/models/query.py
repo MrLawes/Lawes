@@ -11,33 +11,41 @@ from lawes.db.models.query_utils import Q
 from lawes.db.models import sql
 from lawes.db.models.fields import AutoField
 import copy
+from lawes.conf import settings
+import os
+from lawes.conf import ENVIRONMENT_VARIABLE
 
 CONF_RAESE = """
 The correct formal is:
 from lawes.db import models
-models.setup(conf={'mongo_uri': 'mongodb://127.0.0.1:27017/test', 'db_name': 'testindex'})
+models.setup(conf={'MONGO_URI': 'mongodb://127.0.0.1:27017/test', 'DB_NAME': 'testindex'})
 self._mongo: %s , self._db: %s
 """
 
 class ConfigQuerySet(object):
 
     def __init__(self):
+
         self.mongo = None
-        self.db_name = ''
+        self.DB_NAME = ''
+        settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
+        if settings_module:
+            conf = { 'DB_NAME':settings.DB_NAME, 'MONGO_URI': settings.MONGO_URI }
+            self._setup(conf)
 
     def _setup(self, conf):
         """ 设置mongodb的连接方式
         """
         if self.mongo:
             return
-        if self.db_name:
+        if self.DB_NAME:
             return
-        if not 'db_name' in conf:
+        if not 'DB_NAME' in conf:
             raise MongoClientError(CONF_RAESE % ('', ''))
-        if not 'mongo_uri' in conf:
+        if not 'MONGO_URI' in conf:
             raise MongoClientError(CONF_RAESE % ('', ''))
-        self.mongo = MongoClient(conf['mongo_uri'])
-        self.db_name = conf['db_name'].lower()
+        self.mongo = MongoClient(conf['MONGO_URI'])
+        self.DB_NAME = conf['DB_NAME'].lower()
 
 # init the MongoClient
 configqueryset = ConfigQuerySet()
@@ -49,7 +57,7 @@ class QuerySet(object):
         self.query_flag = False                    # set the query_flag to True after filer, order_by , that the methon only return QuerySet
         self.model = model
         self._mongo = configqueryset.mongo
-        self._db = configqueryset.db_name           # the name of the db
+        self._db = configqueryset.DB_NAME           # the name of the db
         self.db_table = model._meta.db_table        # the name of the collection
         if not self._mongo or not self._db:
             raise MongoClientError(CONF_RAESE % (str(self._mongo), str(self._db)))

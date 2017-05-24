@@ -5,7 +5,7 @@ Enviroment: pip install lawes
 Install the mongodb, and start it: "D:\Program Files\MongoDB\Server\3.4\bin\mongod.exe" --dbpath d:\test
 ```
 from lawes.db import models
-conf_dict = {'mongo_uri': 'mongodb://127.0.0.1:27017/', 'db_name': 'testindex'}
+conf_dict = {'MONGO_URI': 'mongodb://127.0.0.1:27017/', 'DB_NAME': 'testindex'}
 models.setup(conf=conf_dict)
 
 class Test(models.Model):
