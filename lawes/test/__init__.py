@@ -1,9 +1,9 @@
 
-from lawes.db import models
 import os
 from lawes.conf import ENVIRONMENT_VARIABLE
 os.environ.setdefault(ENVIRONMENT_VARIABLE, 'settings')
 
+from lawes.db import models
 
 class Fruit(models.Model):
     class Meta:
