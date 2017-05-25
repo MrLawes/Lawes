@@ -9,7 +9,6 @@ import copy
 from bson.objectid import ObjectId
 from pymongo.results import InsertOneResult
 from lawes.db.models.fields import AutoField
-from lawes.db.models.fields import FileField
 
 class ModelBase(type):
 

@@ -126,3 +126,39 @@ class FileField(Field):
         if 'upload_to' in kwargs:
            self.upload_to = kwargs.pop('upload_to')
         super(FileField, self).__init__(*args, **kwargs)
+
+    @property
+    def value(self):
+        if callable(self.default):
+            default = self.default()
+        else:
+            default = self.default
+        return default
+
+    def get_upload_to(self):
+        """
+        >>> obj = FileField(upload_to='/var/www/example.com/media/')
+        >>> obj.get_upload_to()
+        '/var/www/example.com/media/'
+        >>> obj = FileField(upload_to='mydir/')
+        >>> obj.get_upload_to()
+        'static/uploads/mydir/'
+        >>> obj = FileField(upload_to='mydir')
+        >>> obj.get_upload_to()
+        'static/uploads/mydir/'
+        >>> from lawes.conf import settings
+        >>> settings.MEDIA_ROOT = 'mystatic/'
+        >>> obj = FileField(upload_to='mydir')
+        >>> obj.get_upload_to()
+        'mystatic/mydir/'
+        """
+        if self.upload_to.startswith('/'):
+            return self.upload_to
+        upload_to = settings.MEDIA_ROOT
+        if not upload_to.endswith('/'):
+            upload_to += '/'
+        if self.upload_to:
+            upload_to += self.upload_to
+        if not upload_to.endswith('/'):
+            upload_to += '/'
+        return upload_to
